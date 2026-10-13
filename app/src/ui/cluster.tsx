@@ -312,12 +312,10 @@ function AddNodeControl() {
           <span className="place-node-name"><Icon name={kind === 'special' ? 'cpu' : (tier === 'Large' ? 'server' : 'node')} size={14} style={{ color: 'var(--text-dim)' }} /> {label}</span>
           <span className="node-tier">{slots} slots</span>
         </div>
-        <div className="flex" style={{ justifyContent: 'space-between', marginTop: 9, gap: 8 }}>
-          <span className="faint" style={{ fontSize: 11 }}>{kind === 'special' ? `Locked to ${hw} · dense` : 'Flexible · editable tags'}</span>
-          <span className="mono" style={{ fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap' }}>
-            <span style={{ color: budget >= cost ? 'var(--ok)' : 'var(--bad)' }}>{money(cost)}</span>
-            <span className="faint" style={{ fontWeight: 500 }}> · {money(-upkeep)}/day</span>
-          </span>
+        <div className="faint" style={{ fontSize: 11, marginTop: 8 }}>{kind === 'special' ? `Locked to ${hw} · dense` : 'Flexible · editable tags'}</div>
+        <div className="mono" style={{ fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', marginTop: 5 }}>
+          <span style={{ color: budget >= cost ? 'var(--ok)' : 'var(--bad)' }}>{money(cost)}</span>
+          <span className="faint" style={{ fontWeight: 500 }}> · {money(-upkeep)}/day</span>
         </div>
         {locked && lockMsg && <div className="place-warn" style={{ marginTop: 8 }}><Icon name="lock" size={12} /> {lockMsg}</div>}
       </button>
@@ -337,7 +335,7 @@ function AddNodeControl() {
       <div className="flex gap8" style={{ marginBottom: 10, fontSize: 11.5, color: 'var(--text-dim)', fontWeight: 600 }}>
         <Icon name="cpu" size={13} style={{ opacity: .7 }} /> Special hardware — {CONFIG.SLOTS.Special} slots, locked to one type {!canSpecial && <span className="lock-note"><Icon name="lock" size={11} /> unlock Specialized Hardware</span>}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(170px,1fr))', gap: 10 }}>
         {CONFIG.HW.map(hw => opt('special', 'Special', hw, `${hw} node`, !canSpecial, 'Unlock Specialized Hardware'))}
       </div>
     </div>

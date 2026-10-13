@@ -55,8 +55,8 @@ export function HUD({ onOpen }: { onOpen: (m: Modal) => void }) {
         <div className={`meter hero${meters.budget < 0 ? ' flash' : ''}`}>
           <div className="meter-head">
             <span className="meter-label"><Icon name="budget" size={13} /> Budget</span>
-            <span className="hud-income">
-              <span className="up">+{money(traffic)}/day traffic</span> · <span className="down">−{money(upkeep)}/day upkeep</span>
+            <span className="hud-income" title={`Traffic income +${money(traffic)}/day · upkeep −${money(upkeep)}/day · net ${money(traffic - upkeep)}/day`}>
+              <span className="up">+{money(traffic)}</span> <span className="down">−{money(upkeep)}/day</span>
             </span>
           </div>
           <div className="meter-val" style={{ color: budgetCol, fontSize: 21 }}>{money(meters.budget)}</div>

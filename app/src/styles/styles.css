@@ -933,3 +933,5 @@ tr:hover .row-actions, .svccard:hover .row-actions, .heatcell:hover .row-actions
   .led.bad, .led.pulse, .meter.flash, .node.rebalancing, .firstbeat, .fadein, .overlay, .field.shake { animation: none !important; }
   .btn, .ticket, .svccard, .heatcell, .repo, .upgrade { transition: none !important; }
 }
+.meter.hero .meter-head { gap: 10px; }
+.hud-income { overflow:hidden; text-overflow:ellipsis; }

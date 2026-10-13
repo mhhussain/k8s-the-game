@@ -19,7 +19,7 @@ export const CONFIG = {
   NODE_PROVISION: { Normal: 400, Large: 650, Special: 1150 } as Record<NodeTier, number>, // Large was 750
   NODE_DECOMMISSION_REFUND: 0.5,   // fraction of provision cost refunded (node must be empty)
   PER_REPLICA_CAP: 55,            // req/s per replica
-  REVENUE_PER_REQ: 2.4,           // $/day per req/s actually served (new: healthy traffic pays)
+  REVENUE_PER_REQ: 3.0,           // $/day per req/s actually served (new: healthy traffic pays)
   BAILOUT_AMOUNT: 1000,           // emergency funding (new): once per day when budget < 0
   BAILOUT_XP: 20,
   BUILD_COST: 0,                  // manual builds are free; stale incidents pay less instead

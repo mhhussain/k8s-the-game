@@ -192,6 +192,11 @@ function CritRow({ c, shake }: { c: GradedCriterion; shake: boolean }) {
 function TicketDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const { state, dispatch } = useGame();
   const [shake, setShake] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   const t = state.tickets.find(x => x.id === id);
   if (!t) return null;
   const graded = gradeTicket(state, t);

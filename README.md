@@ -49,7 +49,7 @@ The prototype's loop worked for about two minutes and then had nothing to push b
 |---|---|
 | Re-open → Mark done paid again forever | Tickets carry a `paid` flag; a ticket pays once. |
 | Resolve a ticket, scale to 0, keep the money | Resolved requests are standing SLOs. If their criteria stop being true for 6 ticks, a **Regression** incident lands (pays less, pauses the clock). |
-| Only breakage produced income | **Served traffic pays**: each req/s a healthy service actually serves earns $2.40/day. The HUD shows traffic income next to upkeep. A healthy, right-sized cluster is now profitable. |
+| Only breakage produced income | **Served traffic pays**: each req/s a healthy service actually serves earns $3.00/day. The HUD shows traffic income next to upkeep. A healthy, right-sized cluster is now profitable. |
 | Building a new image and "fixing" the Stale incident was a money printer | Stale incidents pay $150/10 XP (self-inflicted). CI builds only repos that have a live service, every 14 ticks. |
 | No content after tick 96, no win, no lose | **Procedural tickets** (6 templates that only ask for things the cluster doesn't already satisfy, with soft deadlines and reward decay). **Win**: buy *Secrets & Data Tier*. **Lose**: two days below −$2,000. Endless mode after either. |
 | Softlock when broke with nothing to fix | **Emergency funding** once per day when the budget is negative (+$1,000, −20 XP). |

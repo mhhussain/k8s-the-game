@@ -85,13 +85,13 @@ function UpgradeCard({ u, owned, affordable, reqMet, onBuy, branchColor, state }
         <div className="u-cost">
           <span style={{ color: budget >= u.cost ? 'var(--ok)' : 'var(--bad)' }}><Icon name="budget" size={13} style={{ verticalAlign: -2 }} /> {money(u.cost)}</span>
           {u.xp > 0 && <span style={{ color: xp >= u.xp ? 'var(--accent)' : 'var(--bad)' }}><Icon name="bolt" size={12} style={{ verticalAlign: -1 }} /> {u.xp}</span>}
-          {locked && (
-            <span className="faint mono" style={{ fontSize: 10.5 }} title={`Requires ${missing.join(', ')}`}>
-              <Icon name="lock" size={11} style={{ verticalAlign: -1 }} /> needs {missing.join(', ')}
-            </span>
-          )}
           {affordable && <span className="spacer" />}
           {affordable && <Icon name="arrow" size={15} style={{ color: branchColor }} />}
+        </div>
+      )}
+      {!owned && locked && (
+        <div className="faint mono" style={{ fontSize: 10.5, marginTop: 8, lineHeight: 1.4 }} title={`Requires ${missing.join(', ')}`}>
+          <Icon name="lock" size={11} style={{ verticalAlign: -1 }} /> needs {missing.join(', ')}
         </div>
       )}
     </div>

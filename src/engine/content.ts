@@ -4,6 +4,7 @@
    ============================================================ */
 import { CONFIG } from './config';
 import { misplaced } from './placement';
+import { latestVersionFor } from './helpers';
 import type { Criterion, GameState, Hw, Priority, Repo, Service, Ticket, Upgrade, Lang } from './types';
 import type { Rng } from './rng';
 
@@ -44,14 +45,14 @@ export function scriptedTickets(): { atTick: number; ticket: Ticket }[] {
         'Build the image first (drag the repo onto the Registry), then deploy a service from it.',
         700, 30,
         [{ kind: 'running', svc: 'web-storefront', label: 'web-storefront is running' }]), first: true } },
-    { atTick: 26, ticket: tk('TCK-102', 'Dana · Growth', '#5BA641', 'high', 'recommend-engine', 'repo-4',
+    { atTick: 36, ticket: tk('TCK-102', 'Dana · Growth', '#5BA641', 'high', 'recommend-engine', 'repo-4',
         'Make the recommendation engine highly available',
         'Marketing’s "people also bought" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.',
         'High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.',
         1100, 60,
         [ { kind: 'running', svc: 'recommend-engine', label: 'recommend-engine is running' },
           { kind: 'ha',      svc: 'recommend-engine', label: 'High availability' } ]) },
-    { atTick: 48, ticket: tk('TCK-103', 'Marcus · Compliance', '#D2742B', 'med', 'audit-log', 'repo-5',
+    { atTick: 72, ticket: tk('TCK-103', 'Marcus · Compliance', '#D2742B', 'med', 'audit-log', 'repo-5',
         'Stand up audit-log on DATA hardware',
         'Compliance needs audit-log running and keeping data "where the auditors expect it" — on a DATA node. And it must never be a single point of failure.',
         '"Where the auditors expect it" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.',
@@ -59,7 +60,7 @@ export function scriptedTickets(): { atTick: number; ticket: Ticket }[] {
         [ { kind: 'running',  svc: 'audit-log', label: 'audit-log is running' },
           { kind: 'ha',       svc: 'audit-log', label: 'High availability' },
           { kind: 'node_tag', svc: 'audit-log', tag: 'DATA', label: 'Every replica on a DATA node' } ]) },
-    { atTick: 72, ticket: tk('TCK-104', 'Sam · Ops', '#C85B5B', 'low', 'image-resizer', 'repo-3',
+    { atTick: 110, ticket: tk('TCK-104', 'Sam · Ops', '#C85B5B', 'low', 'image-resizer', 'repo-3',
         'Thumbnails service for sale days',
         'Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.',
         '"Sale days get rough" = give it headroom. Thin on replicas and it buckles the first busy afternoon.',
@@ -176,7 +177,7 @@ export function proceduralTicket(state: GameState, rng: Rng, seqNo: number): Tic
         `Engineering shipped a new ${s.name} build with “the fix”. Nobody knows which fix. Ship it anyway.`,
         'Redeploy the service on the latest image from the Registry — or unlock Rolling Updates to do it automatically.',
         rng.int(50, 70) * 10, rng.int(3, 4) * 10,
-        [ { kind: 'latest', svc: s.name, label: `${s.name} on the latest version` },
+        [ latestCriterion(state, s),
           { kind: 'stable', svc: s.name, label: `${s.name} healthy — all pods ready` } ], tick);
     } },
   ];
@@ -196,6 +197,13 @@ export function proceduralTicket(state: GameState, rng: Rng, seqNo: number): Tic
     }
   }
   return null;
+}
+
+/* "on the latest version" is pinned to the newest build that exists when the
+   ticket opens. Builds that land later (CI!) don't move the goalposts. */
+export function latestCriterion(state: GameState, s: Service): Criterion {
+  const v = latestVersionFor(state, s);
+  return { kind: 'latest', svc: s.name, n: v, label: v ? `${s.name} on v${v} or newer` : `${s.name} on the latest version` };
 }
 
 /* ---------- incident (BUG) tickets ---------- */
@@ -220,7 +228,7 @@ export function makeBugTicket(state: GameState, s: Service, n: number, overload:
       title: `${s.name} is serving errors`,
       body: `Users report ${s.name} is flaky and returning stale data. It looks out of date.`,
       hint: 'It’s running an old build. Redeploy it on the latest image — or unlock Rolling Updates to keep it fresh automatically.',
-      criteria: [{ kind: 'latest', svc: s.name, label: `${s.name} on the latest version` }, base.criteria[0]] };
+      criteria: [latestCriterion(state, s), base.criteria[0]] };
   }
   if (overload) {
     return { ...base,

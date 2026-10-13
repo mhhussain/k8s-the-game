@@ -48,7 +48,7 @@ const FACTS: [string, string][] = [
   ['Genre', 'Management sim · light puzzle'],
   ['Platform', 'Any modern browser (desktop)'],
   ['Price', 'Free'],
-  ['Session', '15–25 min to finish the campaign, endless after'],
+  ['Session', '30–45 min to finish the campaign, endless after'],
   ['Saves', 'Autosave · 3 slots · JSON export'],
   ['Install', 'None. One HTML file, no server'],
   ['Version', VERSION],

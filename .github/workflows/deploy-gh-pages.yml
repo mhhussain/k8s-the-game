@@ -1,0 +1,72 @@
+# On every push to main: test, build the single-file game, and publish dist/
+# to the gh-pages branch (history kept: one commit per deploy).
+#
+# One-time setup in the repo: Settings → Pages → Build and deployment →
+# Source: "Deploy from a branch", Branch: gh-pages, folder: / (root).
+name: Deploy to gh-pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push to the gh-pages branch
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false   # never interrupt a half-finished push
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit + balance tests
+        run: npm test
+
+      - name: Build (typecheck + single-file bundle)
+        run: npm run build
+
+      - name: Publish dist/ to gh-pages
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Check out gh-pages into ./site (create it as an orphan branch the first time)
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git fetch --depth=1 origin gh-pages
+            git worktree add --detach site FETCH_HEAD
+          else
+            git worktree add --detach site
+            git -C site checkout --orphan gh-pages-init
+            git -C site rm -rfq --ignore-unmatch .
+          fi
+
+          # Replace the site contents with the fresh build
+          find site -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -R dist/. site/
+          touch site/.nojekyll   # serve files as-is, no Jekyll processing
+
+          git -C site add -A
+          if git -C site diff --cached --quiet; then
+            echo "Build unchanged; nothing to publish."
+            exit 0
+          fi
+          FIRST_LINE="$(printf '%s' "${SOURCE_MSG:-manual deploy}" | head -n1)"
+          git -C site commit -q -m "Deploy ${SOURCE_SHA:0:7}: ${FIRST_LINE}"
+          git -C site push origin HEAD:gh-pages
+          echo "Published ${SOURCE_SHA:0:7} to gh-pages."

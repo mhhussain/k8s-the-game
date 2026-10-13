@@ -103,7 +103,7 @@ export function play(seed: number, n: number): { st: GameState; sum: Summary; bu
     minBudget: Math.round(minBudget), minAt, xp: st.meters.xp, resolved: st.stats.ticketsResolved, incidents: st.stats.incidentsResolved,
     upgrades: st.upgrades.filter(u => u.owned).length, worstSla: +st.stats.worstSla.toFixed(2),
     outcome: wonAt >= 0 ? `won@day${Math.floor(wonAt / CONFIG.TICKS_PER_DAY) + 1}` : st.outcome ? `${st.outcome.kind}@${st.outcome.atTick}` : '—',
-    procTickets: st.tickets.filter(t => t.type === 'new' && Number(t.id.split('-')[1]) >= 105).length,
+    procTickets: st.tickets.filter(t => t.type !== 'bug' && Number(t.id.split('-')[1]) >= 105).length,
   };
   return { st, sum, budgets };
 }

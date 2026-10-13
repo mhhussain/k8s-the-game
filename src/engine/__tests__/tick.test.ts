@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { CONFIG } from '../config';
-import { scriptedTickets } from '../content';
+import { makeBugTicket, scriptedTickets } from '../content';
+import { gradeCriterion } from '../grader';
 import { dayOf } from '../helpers';
 import { podsOnNode, totalFree } from '../placement';
 import { mkService, reducer, seedState } from '../reducer';
@@ -87,7 +88,10 @@ describe('ticket arrival', () => {
   test('later scripted tickets land on schedule and pause only when pauseOnTicket', () => {
     let st = { ...base({ pending: scriptedTickets() }), clock: { ...base().clock, paused: false } };
     st = { ...st, settings: { ...st.settings, pauseOnTicket: false } };
-    st = ticks(st, 26);
+    const second = scriptedTickets()[1].atTick;
+    st = ticks(st, second - 1);
+    expect(st.tickets.map(t => t.id)).toEqual(['TCK-101']);
+    st = tick(st);
     st = { ...st, clock: { ...st.clock, paused: false } };
     expect(st.tickets.map(t => t.id)).toEqual(['TCK-101', 'TCK-102']);
     expect(st.clock.paused).toBe(false); // TCK-102 is not the first beat
@@ -445,5 +449,23 @@ describe('review fixes', () => {
     const st = tick(base({ nodes, services: [filler, a, b] }));
     const onBravo = st.services.flatMap(s => s.podNodes.slice(0, s.replicas)).filter(n => n === 'node-bravo').length;
     expect(onBravo).toBeLessThanOrEqual(4);
+  });
+});
+
+describe('pacing', () => {
+  test('scripted tickets are spaced at least ~half a game day apart', () => {
+    const at = scriptedTickets().map(p => p.atTick);
+    for (let i = 1; i < at.length; i++) expect(at[i] - at[i - 1]).toBeGreaterThanOrEqual(30);
+    expect(CONFIG.TICK_MS).toBeGreaterThanOrEqual(2200);
+  });
+  test('an "on the latest version" ask is pinned: a newer CI build does not move the goalposts', () => {
+    // service on v1, newest is v2 → ticket asks for v2
+    let st = base({ images: [img('img-1', 'repo-1'), img('img-2', 'repo-1', 2)], services: [running('web-storefront', 2, ['node-alpha', 'node-alpha'], { status: 'Stale' })] });
+    const bug = makeBugTicket(st, st.services[0], 1, false);
+    const latest = bug.criteria.find(c => c.kind === 'latest')!;
+    expect(latest.n).toBe(2);
+    // redeploy on v2, then CI lands v3: still met
+    st = { ...st, services: st.services.map(s => ({ ...s, imageId: 'img-2', status: 'Running' as const })), images: [...st.images, img('img-3', 'repo-1', 3)] };
+    expect(gradeCriterion(st, latest)).toBe(true);
   });
 });

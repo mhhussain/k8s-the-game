@@ -257,10 +257,12 @@ export function reducer(state: GameState, action: Action): GameState {
         if (d.replicas === 0) return { ...s, ...d, podNodes, status: 'Idle' as const, ready: [0, 0] as [number, number], settleIn: 0, crashFor: 0 };
         // a rolling update keeps a healthy service serving; anything not yet healthy (re)settles
         const settling = s.status === 'Idle' || s.status === 'Pending' || s.status === 'CrashLoopBackOff' || s.settleIn > 0;
+        const newImage = d.imageId !== s.imageId;
         if (rolling && !settling) {
-          return { ...s, ...d, podNodes, ready: [Math.min(s.ready[0], d.replicas), d.replicas] as [number, number], settleIn: 0 };
+          return { ...s, ...d, podNodes, ready: [Math.min(s.ready[0], d.replicas), d.replicas] as [number, number], settleIn: 0,
+            ...(newImage ? { age: 0, status: s.status === 'Stale' ? 'Running' as const : s.status } : {}) };
         }
-        return { ...s, ...d, podNodes, status: 'Pending' as const,
+        return { ...s, ...d, podNodes, status: 'Pending' as const, ...(newImage ? { age: 0 } : {}),
           ready: [rolling ? Math.min(s.ready[0], d.replicas) : 0, d.replicas] as [number, number],
           settleIn: rolling && s.settleIn > 0 ? s.settleIn : CONFIG.SETTLE_TICKS, crashFor: 0 };
       });

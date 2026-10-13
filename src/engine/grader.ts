@@ -1,7 +1,7 @@
 /* ============================================================
    Acceptance-criteria grader (pure, derived, never stored)
    ============================================================ */
-import { findSvc, isLatest } from './helpers';
+import { findSvc, imageVersionOf, isLatest } from './helpers';
 import { distinctNodes, misplaced } from './placement';
 import type { Criterion, GameState, GradedCriterion, Service, SubCheck, Ticket } from './types';
 
@@ -30,7 +30,7 @@ export function gradeCriterion(state: GameState, c: Criterion): boolean {
       if (!placed.length) return false;
       return placed.every(nid => { const n = state.nodes.find(nn => nn.id === nid); return !!n && !!c.tag && n.tags.includes(c.tag); });
     }
-    case 'latest':     return !!s && isLatest(state, s) && s.status !== 'Stale';
+    case 'latest':     return !!s && (c.n != null ? imageVersionOf(state, s) >= c.n : isLatest(state, s)) && s.status !== 'Stale';
     case 'probes':     return !!s && s.liveness && s.readiness;
     case 'stable':
       return !!s && s.status === 'Running' && s.errorRate < 0.06 && s.ready[0] === s.ready[1] && s.replicas > 0 && misplaced(state, s) === 0;

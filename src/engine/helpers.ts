@@ -35,6 +35,16 @@ export const imageById = (state: GameState, id: string) => state.images.find(i =
 export const nodeById = (state: GameState, id: string) => state.nodes.find(n => n.id === id);
 export const findSvc = (state: GameState, name: string) => state.services.find(s => s.name === name);
 
+/* version of the image a service runs, and the newest built version of its repo */
+export function imageVersionOf(state: GameState, s: Service): number {
+  return state.images.find(i => i.id === s.imageId)?.version ?? 0;
+}
+export function latestVersionFor(state: GameState, s: Service): number {
+  const img = state.images.find(i => i.id === s.imageId);
+  if (!img) return 0;
+  return Math.max(0, ...state.images.filter(i => !i.building && i.repoId === img.repoId).map(i => i.version));
+}
+
 export function isLatest(state: GameState, s: Service): boolean {
   const imgs = state.images.filter(i => !i.building);
   const img = imgs.find(i => i.id === s.imageId);

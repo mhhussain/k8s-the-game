@@ -2,7 +2,13 @@
 
 A menu-driven Kubernetes management sim that runs entirely in the browser. No terminal, no backend: you work tickets, build images, author services, grow a cluster of nodes, and buy automation until `prod-east-1` runs itself.
 
-**Play it:** open `dist/index.html` in any modern browser, or host the `dist/` folder on any static host (GitHub Pages, Netlify, S3, a USB stick). Everything, including saves, lives in the browser.
+**Play it:** https://mhhussain.github.io/k8s-the-game/ (GitHub Pages), or open `dist/index.html` in any modern browser. The `dist/` folder also works on any static host (Netlify, S3, a USB stick). Everything, including saves, lives in the browser.
+
+## Hosting on GitHub Pages
+
+Every push to `main` runs `.github/workflows/deploy-gh-pages.yml`: it installs, runs the tests, builds, and commits the contents of `dist/` to the `gh-pages` branch. A failing test stops the deploy, so a broken build never goes live.
+
+One-time setup: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `gh-pages` / `(root)`**. After that the site updates a minute or two after each push to `main`. You can also run the workflow by hand from the Actions tab.
 
 ```
 k8s-the-game/
@@ -16,7 +22,7 @@ k8s-the-game/
 │   └── styles/styles.css    ← design system (3 themes)
 ├── e2e/                     ← Playwright smoke playthrough against the built bundle
 ├── IT Guy Menu Simulator/   ← original design handoff + in-browser prototype (reference only)
-└── .github/workflows/       ← optional GitHub Pages deploy
+└── .github/workflows/       ← deploy-gh-pages.yml: test, build, publish dist/ to gh-pages on every push to main
 ```
 
 ## Developing
@@ -61,7 +67,7 @@ The prototype's loop worked for about two minutes and then had nothing to push b
 | Re-open → Mark done paid again forever | Tickets carry a `paid` flag; a ticket pays once. |
 | Resolve a ticket, scale to 0, keep the money | Resolved requests are standing SLOs. If their criteria stop being true for 6 ticks, a **Regression** incident lands (pays nothing, pauses the clock). |
 | Only breakage produced income | **Served traffic pays**: each req/s a healthy service actually serves earns $3.20/day. The HUD shows traffic income next to upkeep. A healthy, right-sized cluster is now profitable. |
-| Building a new image and "fixing" the Stale incident was a money printer | Stale incidents pay $150/10 XP (self-inflicted). CI builds only repos that have a live service, every 14 ticks. |
+| Building a new image and "fixing" the Stale incident was a money printer | Stale incidents pay $150/10 XP (self-inflicted). CI builds only repos that have a live service, every 40 ticks. A “get on the latest version” ask is pinned to the build that existed when it opened, so new CI builds never move the goalposts. |
 | No content after tick 96, no win, no lose | **Procedural tickets** (6 templates that only ask for things the cluster doesn't already satisfy, with soft deadlines and reward decay). **Win**: buy *Secrets & Data Tier*. **Lose**: two days below −$2,000. Endless mode after either. |
 | Softlock when broke with nothing to fix | **Emergency funding** once per day when the budget is negative (+$1,000, −20 XP). |
 | Pod vs Deployment, HA, probes did nothing in the sim | **Node outages** take a node offline for a few hours. Deployments re-home their pods; bare Pods on it go down. A crashed Deployment pod is recreated in 3 ticks; a crashed bare Pod stays dead until you restart it. Liveness probes speed crash recovery and lower crash risk; Readiness probes stop half-started pods from serving errors. |

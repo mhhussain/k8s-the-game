@@ -8,7 +8,7 @@ export const CONFIG = {
   SAVE_VERSION: 1,
 
   /* clock */
-  TICK_MS: 1100,
+  TICK_MS: 2200,                  // real ms per tick at 1× (was 1100: loop felt too fast)
   TICKS_PER_DAY: 48,            // 30 game-minutes per tick
   START_MINS: 9 * 60,
 
@@ -45,21 +45,21 @@ export const CONFIG = {
   RESTART_SETTLE_TICKS: 2,
   DEPLOYMENT_CRASH_RECOVERY: 3,   // a Deployment recreates a crashed pod after this many ticks
   LIVENESS_CRASH_RECOVERY: 1,     // with a liveness probe, crash loops clear faster
-  STALE_AGE: 6,
-  STALE_CHANCE: 0.12,             // per tick once stale-eligible (prototype: 0.18)
+  STALE_AGE: 16,                  // ticks a deploy stays fresh before it can drift Stale
+  STALE_CHANCE: 0.05,             // per tick once stale-eligible (prototype: 0.18)
   DEMAND_DRIFT: [-2.2, 2.8] as [number, number],   // gentle ramp (~+14 req/s per day); bursts come from sale events
   DEMAND_MIN: 10,
   DEMAND_MAX: 320,                // ×1.3 peak = 416 req/s < 8 replicas × 55
 
   /* builds */
-  BUILD_STEP: 12,                 // % per tick
-  BUILD_STEP_FAST: 34,
-  CI_EVERY: 14,                   // ticks between CI auto-builds (prototype: 7); only repos with a live service
+  BUILD_STEP: 20,                 // % per tick (5 ticks; ticks are longer now)
+  BUILD_STEP_FAST: 50,
+  CI_EVERY: 40,                   // ticks between CI auto-builds (prototype: 7); only repos with a live service
   REBALANCE_EVERY: 6,
 
   /* incidents */
-  INCIDENT_BASE: 0.16,            // + drama * INCIDENT_DRAMA
-  INCIDENT_DRAMA: 0.16,
+  INCIDENT_BASE: 0.08,            // + drama * INCIDENT_DRAMA, per troubled service per tick
+  INCIDENT_DRAMA: 0.08,
   INCIDENT_MAX_OPEN: 6,
   INCIDENT_REWARD: 500,
   INCIDENT_REWARD_OVERLOAD: 650,
@@ -82,19 +82,19 @@ export const CONFIG = {
   SLA_RECOVER: 0.08,
 
   /* world events (new) */
-  OUTAGE_MIN_GAP: 60,             // ticks between node outages
+  OUTAGE_MIN_GAP: 96,             // ticks between node outages
   OUTAGE_CHANCE: 0.02,            // per tick once gap elapsed and ≥2 nodes
   OUTAGE_DURATION: [5, 9] as [number, number],
-  SALE_EVERY: [70, 120] as [number, number],   // ticks between sale announcements
+  SALE_EVERY: [110, 180] as [number, number],  // ticks between sale announcements
   SALE_LEAD: 24,                  // announced this many ticks ahead
   SALE_DURATION: 20,
   SALE_MULT: 2.2,
 
   /* procedural tickets (new) */
-  PROC_FIRST: 100,                // first procedural ticket may land after the scripted ones
-  PROC_GAP: [36, 64] as [number, number],
-  PROC_MAX_OPEN: 3,               // max open non-incident tickets
-  TICKET_DUE_DAYS: { high: 2, med: 3, low: 4 } as Record<'high' | 'med' | 'low', number>,
+  PROC_FIRST: 150,                // first procedural ticket may land after the scripted ones
+  PROC_GAP: [60, 100] as [number, number],
+  PROC_MAX_OPEN: 2,               // max open non-incident tickets
+  TICKET_DUE_DAYS: { high: 3, med: 4, low: 5 } as Record<'high' | 'med' | 'low', number>,
 
   /* traffic curve: multiplier by hour of day (new) */
   HOUR_CURVE: [0.55,0.5,0.5,0.5,0.55,0.6,0.7,0.85,1.0,1.1,1.15,1.2,1.25,1.25,1.3,1.25,1.2,1.15,1.1,1.05,0.95,0.85,0.75,0.65],

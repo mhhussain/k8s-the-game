@@ -21,11 +21,11 @@ test('first ticket playthrough, save and reload', async ({ page }) => {
   await page.keyboard.press('Space');
   await expect(page.getByText('Your first ticket just landed')).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: /Open the ticket/ }).click();
-  await expect(page.getByText('Get web-storefront live')).toBeVisible();
+  await expect(page.locator('.slideover').getByText('Get web-storefront live')).toBeVisible();
 
-  // build the image from the Repos/Registry pipeline (use the non-drag fallback button)
-  await page.getByRole('button', { name: 'Cluster' }).click();
-  await page.locator('.tab', { hasText: 'Repos' }).click();
+  // "Go build" jumps straight to the Repos pipeline; build with the non-drag fallback button
+  await page.getByRole('button', { name: 'Go build' }).click();
+  await expect(page.locator('.tab.active', { hasText: 'Repos' })).toBeVisible();
   const repoCard = page.locator('.repo', { hasText: 'web-storefront' });
   await expect(repoCard).toBeVisible();
   await repoCard.getByRole('button', { name: /Build/ }).click();

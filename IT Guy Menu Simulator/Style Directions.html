@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cluster — Style Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:#ECEAE3;
+    background-image: radial-gradient(circle at 18% 12%, #fff6e9 0, transparent 42%),
+                      radial-gradient(circle at 86% 8%, #eef3ff 0, transparent 40%),
+                      radial-gradient(circle at 70% 95%, #fdeef6 0, transparent 45%);
+    color:#26221c;
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    min-height:100vh;
+    padding:46px 40px 70px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page-head{ max-width:1240px; margin:0 auto 36px; }
+  .eyebrow{ font-family:'Space Mono', monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:#9a8f7d; margin-bottom:12px; }
+  h1{ font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.08; }
+  .lede{ font-size:15.5px; line-height:1.6; color:#5f5849; max-width:680px; margin-top:14px; }
+  .lede b{ color:#26221c; font-weight:700; }
+
+  .grid{ max-width:1240px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+  @media (max-width:1100px){ .grid{ grid-template-columns:1fr; max-width:560px; } }
+
+  .tile{
+    border-radius:22px; overflow:hidden;
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 30px 60px -28px rgba(40,34,24,.4), 0 4px 14px -6px rgba(40,34,24,.18);
+    display:flex; flex-direction:column;
+    transition:transform .22s cubic-bezier(.3,.7,.4,1), box-shadow .22s;
+  }
+  .tile:hover{ transform:translateY(-5px); box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 40px 80px -30px rgba(40,34,24,.5), 0 6px 18px -6px rgba(40,34,24,.22); }
+
+  /* ---- tile header (lives on the theme bg) ---- */
+  .t-head{ padding:22px 22px 18px; border-bottom:1px solid var(--bd); background:var(--bg1); }
+  .t-num{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--accent); font-weight:600; }
+  .t-name{ font-size:23px; font-weight:800; letter-spacing:-.01em; margin-top:7px; color:var(--ink); font-family:var(--display); }
+  .t-desc{ font-size:13px; line-height:1.55; color:var(--dim); margin-top:9px; min-height:58px; }
+  .t-fonts{ font-family:var(--mono); font-size:10.5px; color:var(--faint); margin-top:12px; letter-spacing:.02em; }
+
+  /* ---- swatches ---- */
+  .swatches{ display:flex; gap:7px; padding:16px 22px; background:var(--bg); border-bottom:1px solid var(--bd); }
+  .sw{ flex:1; height:40px; border-radius:9px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); position:relative; }
+  .sw span{ position:absolute; left:6px; bottom:5px; font-family:var(--mono); font-size:8.5px; letter-spacing:.04em; }
+
+  /* ---- the live mockup region ---- */
+  .mock{ padding:20px 22px 24px; background:var(--bg); flex:1; }
+  .mock-label{ font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin-bottom:13px; }
+
+  /* status row */
+  .statusrow{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:16px; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; font-weight:600; padding:4px 10px 4px 9px; border-radius:999px; border:1px solid; }
+  .led{ width:8px; height:8px; border-radius:50%; }
+  .p-ok{ color:var(--ok-tx); background:var(--ok-bg); border-color:var(--ok-bd); }
+  .p-ok .led{ background:var(--ok); box-shadow:0 0 0 2px var(--ok-bg), 0 0 7px var(--ok); }
+  .p-warn{ color:var(--warn-tx); background:var(--warn-bg); border-color:var(--warn-bd); }
+  .p-warn .led{ background:var(--warn); box-shadow:0 0 0 2px var(--warn-bg), 0 0 7px var(--warn); }
+  .p-bad{ color:var(--bad-tx); background:var(--bad-bg); border-color:var(--bad-bd); }
+  .p-bad .led{ background:var(--bad); box-shadow:0 0 0 2px var(--bad-bg), 0 0 7px var(--bad); }
+
+  /* node card */
+  .card{ background:var(--bg2); border:1px solid var(--bd); border-radius:var(--r); padding:14px; box-shadow:var(--shadow); }
+  .card + .card{ margin-top:12px; }
+  .nd-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+  .nd-name{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .dot-ico{ width:18px; height:18px; border-radius:6px; background:var(--accent-soft); display:grid; place-items:center; color:var(--accent); flex:none; }
+  .dot-ico svg{ display:block; }
+  .tier{ font-family:var(--mono); font-size:9.5px; font-weight:600; padding:2px 8px; border-radius:7px; background:var(--accent-soft); color:var(--accent); }
+  .slots-meta{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--dim); margin-bottom:7px; }
+  .slots{ display:flex; gap:4px; }
+  .slot{ width:15px; height:15px; border-radius:4px; background:var(--inset); box-shadow:inset 0 0 0 1px var(--bd); }
+  .slot.used{ background:var(--accent); box-shadow:none; }
+  .tags{ display:flex; gap:5px; margin-top:11px; flex-wrap:wrap; }
+  .tag{ font-family:var(--mono); font-size:9.5px; font-weight:500; padding:2px 7px; border-radius:6px; background:var(--inset); color:var(--dim); box-shadow:inset 0 0 0 1px var(--bd); }
+  .tag.add{ color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent-bd); border:1px dashed var(--accent-bd); }
+
+  /* ticket card */
+  .tk{ position:relative; overflow:hidden; }
+  .tk::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); }
+  .tk-h{ display:flex; align-items:center; gap:7px; margin-bottom:8px; }
+  .tk-badge{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:2px 7px; border-radius:5px; color:var(--accent); background:var(--accent-soft); }
+  .tk-id{ font-family:var(--mono); font-size:9.5px; color:var(--faint); }
+  .tk-title{ font-size:13px; font-weight:700; color:var(--ink); line-height:1.3; }
+  .tk-crit{ display:flex; align-items:center; gap:8px; margin-top:9px; padding-top:9px; border-top:1px solid var(--bd); }
+  .check{ width:16px; height:16px; border-radius:5px; background:var(--ok); display:grid; place-items:center; color:#fff; flex:none; }
+  .tk-crit span{ font-size:11px; color:var(--dim); }
+
+  /* button */
+  .btn{ margin-top:14px; width:100%; padding:10px; border:none; border-radius:11px; font-family:var(--display); font-size:13px; font-weight:700; color:#fff; background:var(--accent); cursor:pointer; box-shadow:0 6px 16px -7px var(--accent); letter-spacing:.01em; }
+
+  .foot-note{ max-width:1240px; margin:40px auto 0; display:flex; align-items:flex-start; gap:13px; background:#fffdf8; border:1px solid #e7e0d3; border-radius:16px; padding:18px 22px; box-shadow:0 14px 30px -22px rgba(40,34,24,.4); }
+  .foot-note .ico{ width:34px; height:34px; border-radius:10px; background:#1d8f4e; display:grid; place-items:center; flex:none; }
+  .foot-note h3{ font-size:14px; font-weight:700; margin-bottom:5px; }
+  .foot-note p{ font-size:13px; line-height:1.6; color:#5f5849; }
+  .foot-note .chips{ display:inline-flex; gap:6px; margin-left:4px; vertical-align:-3px; }
+  .foot-note .chips i{ width:16px; height:16px; border-radius:5px; display:inline-block; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <div class="eyebrow">Cluster · visual direction</div>
+    <h1>Three ways to go light &amp; playful</h1>
+    <p class="lede">The dark control-room look is out. Here are three distinct light directions, each shown as the real UI — a node card, a ticket, status pills and a button — so you can read them at a glance. <b>Pick one</b> and I'll roll it across every screen. All three keep the hard rule: <b>green = healthy, amber = degrading, red = failing</b>, instantly legible on a bright surface.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ========== DAYLIGHT ========== -->
+    <div class="tile" style="
+      --bg:#F7F6F3; --bg1:#FBFAF8; --bg2:#FFFFFF; --inset:#F0EEE9; --bd:#E6E2DA;
+      --ink:#211E1A; --dim:#6B6459; --faint:#A39B8D;
+      --accent:#4C6EF5; --accent-soft:#E9EDFE; --accent-bd:#C3CFFB;
+      --ok:#16A34A; --ok-tx:#117A38; --ok-bg:#E4F6EA; --ok-bd:#BCE6C9;
+      --warn:#E08A00; --warn-tx:#A9690A; --warn-bg:#FCF1DC; --warn-bd:#F0D9A8;
+      --bad:#E0483B; --bad-tx:#C2392D; --bad-bg:#FCE9E6; --bad-bd:#F4C4BD;
+      --r:14px; --shadow:0 6px 18px -12px rgba(40,34,24,.4);
+      --mono:'IBM Plex Mono',monospace; --display:'Plus Jakarta Sans',sans-serif;
+      font-family:'Plus Jakarta Sans',sans-serif;">
+      <div class="t-head">
+        <div class="t-num">DIRECTION 01</div>
+        <div class="t-name">Daylight</div>
+        <div class="t-desc">Friendly light SaaS. Warm off-white surfaces, a confident indigo, calm slate text and soft shadows. Professional but never cold — the safe, grown-up pick.</div>
+        <div class="t-fonts">Aa · Plus Jakarta Sans + IBM Plex Mono</div>
+      </div>
+      <div class="swatches">
+        <div class="sw" style="background:#F7F6F3"></div>
+        <div class="sw" style="background:#FFFFFF"></div>
+        <div class="sw" style="background:#4C6EF5"></div>
+        <div class="sw" style="background:#16A34A"></div>
+        <div class="sw" style="background:#E08A00"></div>
+        <div class="sw" style="background:#E0483B"></div>
+      </div>
+      <div class="mock">
+        <div class="mock-label">Live preview</div>
+        <div class="statusrow">
+          <span class="pill p-ok"><span class="led"></span>Running</span>
+          <span class="pill p-warn"><span class="led"></span>Stale</span>
+          <span class="pill p-bad"><span class="led"></span>Failing</span>
+        </div>
+        <div class="card">
+          <div class="nd-top">
+            <span class="nd-name"><span class="dot-ico"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>node-alpha</span>
+            <span class="tier">Normal · 4</span>
+          </div>
+          <div class="slots-meta"><span>POD SLOTS</span><span>2 / 4</span></div>
+          <div class="slots"><span class="slot used"></span><span class="slot used"></span><span class="slot"></span><span class="slot"></span></div>
+          <div class="tags"><span class="tag">x86</span><span class="tag add">+ tag</span></div>
+        </div>
+        <div class="card tk">
+          <div class="tk-h"><span class="tk-badge">New service</span><span class="tk-id">TCK-114</span></div>
+          <div class="tk-title">Stand up the recommendation widget</div>
+          <div class="tk-crit"><span class="check">✓</span><span>High availability — 2 replicas, 2 nodes</span></div>
+        </div>
+        <button class="btn">Deploy service</button>
+      </div>
+    </div>
+
+    <!-- ========== BUBBLEGUM ========== -->
+    <div class="tile" style="
+      --bg:#FBF7FC; --bg1:#FDFBFE; --bg2:#FFFFFF; --inset:#F4ECF7; --bd:#ECE0F0;
+      --ink:#2A2233; --dim:#6E6379; --faint:#A99CB3;
+      --accent:#9B5DE5; --accent-soft:#F2E7FB; --accent-bd:#DFC6F2;
+      --ok:#12B886; --ok-tx:#0C8A66; --ok-bg:#DEF7EF; --ok-bd:#A9E9D3;
+      --warn:#F59E0B; --warn-tx:#B7770C; --warn-bg:#FDF0D6; --warn-bd:#F5DAA0;
+      --bad:#F03E6A; --bad-tx:#D02753; --bad-bg:#FDE4EC; --bad-bd:#F8BDD0;
+      --r:17px; --shadow:0 7px 20px -12px rgba(123,69,160,.4);
+      --mono:'Space Mono',monospace; --display:'Nunito',sans-serif;
+      font-family:'Nunito',sans-serif;">
+      <div class="t-head">
+        <div class="t-num">DIRECTION 02</div>
+        <div class="t-name">Bubblegum</div>
+        <div class="t-desc">Playful pastel. Lavender-tinted whites, candy purple and mint, extra-rounded bubbly cards and a chunky rounded typeface. Maximum charm and approachability.</div>
+        <div class="t-fonts">Aa · Nunito + Space Mono</div>
+      </div>
+      <div class="swatches">
+        <div class="sw" style="background:#FBF7FC"></div>
+        <div class="sw" style="background:#FFFFFF"></div>
+        <div class="sw" style="background:#9B5DE5"></div>
+        <div class="sw" style="background:#12B886"></div>
+        <div class="sw" style="background:#F59E0B"></div>
+        <div class="sw" style="background:#F03E6A"></div>
+      </div>
+      <div class="mock">
+        <div class="mock-label">Live preview</div>
+        <div class="statusrow">
+          <span class="pill p-ok"><span class="led"></span>Running</span>
+          <span class="pill p-warn"><span class="led"></span>Stale</span>
+          <span class="pill p-bad"><span class="led"></span>Failing</span>
+        </div>
+        <div class="card">
+          <div class="nd-top">
+            <span class="nd-name"><span class="dot-ico"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>node-alpha</span>
+            <span class="tier">Normal · 4</span>
+          </div>
+          <div class="slots-meta"><span>POD SLOTS</span><span>2 / 4</span></div>
+          <div class="slots"><span class="slot used"></span><span class="slot used"></span><span class="slot"></span><span class="slot"></span></div>
+          <div class="tags"><span class="tag">x86</span><span class="tag add">+ tag</span></div>
+        </div>
+        <div class="card tk">
+          <div class="tk-h"><span class="tk-badge">New service</span><span class="tk-id">TCK-114</span></div>
+          <div class="tk-title">Stand up the recommendation widget</div>
+          <div class="tk-crit"><span class="check">✓</span><span>High availability — 2 replicas, 2 nodes</span></div>
+        </div>
+        <button class="btn">Deploy service</button>
+      </div>
+    </div>
+
+    <!-- ========== VOLTAGE ========== -->
+    <div class="tile" style="
+      --bg:#F4F6FB; --bg1:#FFFFFF; --bg2:#FFFFFF; --inset:#EAEEF7; --bd:#E0E5F0;
+      --ink:#141A2E; --dim:#5A647C; --faint:#9AA5BC;
+      --accent:#6D3BF5; --accent-soft:#EBE5FE; --accent-bd:#C9BAFB;
+      --ok:#08B14B; --ok-tx:#078A3C; --ok-bg:#DDF6E6; --ok-bd:#A6E7BD;
+      --warn:#FB8C00; --warn-tx:#C26C05; --warn-bg:#FDEDD6; --warn-bd:#F6D3A0;
+      --bad:#FF3B30; --bad-tx:#DC2A20; --bad-bg:#FFE5E2; --bad-bd:#FFBFB9;
+      --r:14px; --shadow:0 8px 22px -12px rgba(20,26,46,.42);
+      --mono:'Space Mono',monospace; --display:'Space Grotesk',sans-serif;
+      font-family:'Space Grotesk',sans-serif;">
+      <div class="t-head">
+        <div class="t-num">DIRECTION 03</div>
+        <div class="t-name">Voltage</div>
+        <div class="t-desc">Vibrant tech / candy. Crisp cool-white panels, electric violet, deep ink text and punchy saturated status colors. High-energy and modern — the boldest of the three.</div>
+        <div class="t-fonts">Aa · Space Grotesk + Space Mono</div>
+      </div>
+      <div class="swatches">
+        <div class="sw" style="background:#F4F6FB"></div>
+        <div class="sw" style="background:#FFFFFF"></div>
+        <div class="sw" style="background:#6D3BF5"></div>
+        <div class="sw" style="background:#08B14B"></div>
+        <div class="sw" style="background:#FB8C00"></div>
+        <div class="sw" style="background:#FF3B30"></div>
+      </div>
+      <div class="mock">
+        <div class="mock-label">Live preview</div>
+        <div class="statusrow">
+          <span class="pill p-ok"><span class="led"></span>Running</span>
+          <span class="pill p-warn"><span class="led"></span>Stale</span>
+          <span class="pill p-bad"><span class="led"></span>Failing</span>
+        </div>
+        <div class="card">
+          <div class="nd-top">
+            <span class="nd-name"><span class="dot-ico"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>node-alpha</span>
+            <span class="tier">Normal · 4</span>
+          </div>
+          <div class="slots-meta"><span>POD SLOTS</span><span>2 / 4</span></div>
+          <div class="slots"><span class="slot used"></span><span class="slot used"></span><span class="slot"></span><span class="slot"></span></div>
+          <div class="tags"><span class="tag">x86</span><span class="tag add">+ tag</span></div>
+        </div>
+        <div class="card tk">
+          <div class="tk-h"><span class="tk-badge">New service</span><span class="tk-id">TCK-114</span></div>
+          <div class="tk-title">Stand up the recommendation widget</div>
+          <div class="tk-crit"><span class="check">✓</span><span>High availability — 2 replicas, 2 nodes</span></div>
+        </div>
+        <button class="btn">Deploy service</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot-note">
+    <div class="ico">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <div>
+      <h3>Status colors stay legible everywhere</h3>
+      <p>Across all three directions the health language is consistent and reads instantly on a light background <span class="chips"><i style="background:#16A34A"></i><i style="background:#E08A00"></i><i style="background:#E0483B"></i></span> — tinted pill fills with saturated text and a glowing LED, never a wall of color. The built game also ships all three as a live theme switch in <b>Tweaks</b>, so you can A/B them on real screens before committing.</p>
+    </div>
+  </div>
+</body>
+</html>

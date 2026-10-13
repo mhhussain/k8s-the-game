@@ -16,6 +16,7 @@ import type { GameState, LogEntry, Service, Ticket, Toast, ToastKind, WorldEvent
 export function tick(state: GameState): GameState {
   if (state.outcome && !state.endless) return state;
   const rng = makeRng(state.rng);
+  rng.next(); // the stream advances every tick, even when nothing draws from it
   const drama = state.settings.drama;
   const c = state.clock;
   const mins = (c.mins + 30) % (24 * 60);
@@ -150,8 +151,6 @@ export function tick(state: GameState): GameState {
   /* ---- per-service lifecycle ---- */
   const simState: GameState = { ...baseState, services, clock: { ...c, tick: nowTick, mins } };
   let revenuePerDay = 0;
-  let anyZeroReadyDuringOutage = false;
-  const outageActive = nodes.some(n => !nodeIsUp(n));
   services = services.map(s => {
     const ns: Service = { ...s, ready: [s.ready[0], s.ready[1]] };
     if (ns.replicas === 0) { ns.status = 'Idle'; ns.ready = [0, 0]; ns.errorRate = 0; ns.crashFor = 0; return ns; }
@@ -205,7 +204,6 @@ export function tick(state: GameState): GameState {
     if (maxReady === 0) {
       ns.status = 'CrashLoopBackOff'; ns.ready = [0, ns.replicas];
       ns.errorRate = clamp(ns.errorRate * 0.6 + 0.16, 0.2, 0.9); ns.health = clamp(ns.health - 6, 0, 100);
-      if (outageActive && off > 0) anyZeroReadyDuringOutage = true;
       return ns;
     }
     if (mis + off > 0) {
@@ -266,13 +264,20 @@ export function tick(state: GameState): GameState {
     return ns;
   });
 
-  /* outage bookkeeping: scored when the node comes back */
-  for (const n of state.nodes) {
-    if (n.downFor === 1) {
-      const felt = anyZeroReadyDuringOutage || services.some(s => s.replicas > 0 && s.ready[0] === 0 && s.podNodes.includes(n.id));
-      if (felt) stats.outagesFelt += 1; else { stats.outagesSurvived += 1; say('ok', 'Outage survived', `${n.name} failed and nothing went down. That’s HA.`); }
-    }
-  }
+  /* outage bookkeeping: while a node is down, note whether any service it was
+     hosting hit 0 ready; score it once the node comes back */
+  nodes = nodes.map(n => {
+    const prev = state.nodes.find(x => x.id === n.id);
+    const wasDown = !!prev && prev.downFor > 0;
+    if (!wasDown) return n;
+    const hosted = state.services.filter(s => s.podNodes.slice(0, s.replicas).includes(n.id));
+    const hitZero = hosted.some(h => { const now = services.find(x => x.id === h.id); return !!now && now.replicas > 0 && now.ready[0] === 0; });
+    const felt = !!prev.outageFelt || hitZero;
+    if (n.downFor > 0) return felt === !!n.outageFelt ? n : { ...n, outageFelt: felt };
+    if (felt) stats.outagesFelt += 1;
+    else { stats.outagesSurvived += 1; say('ok', 'Outage survived', `${n.name} failed and nothing went down. That’s HA.`); }
+    return { ...n, outageFelt: false };
+  });
 
   /* ---- incidents ---- */
   const curState: GameState = { ...simState, services, tickets };
@@ -293,18 +298,21 @@ export function tick(state: GameState): GameState {
   }
 
   /* ---- regressions: resolved requests are standing SLOs ---- */
+  const regressions: Ticket[] = [];
   tickets = tickets.map(t => {
     if (t.status !== 'done' || t.type === 'bug' || t.regressed) return t;
     if (t.resolvedTick != null && nowTick - t.resolvedTick < CONFIG.REGRESSION_GRACE) return t;
     if (ticketMet({ ...curState, tickets }, t)) return t;
-    if (tickets.some(b => b.type === 'bug' && b.status === 'todo' && b.svc === t.svc)) return t;
+    const busy = (b: Ticket) => b.type === 'bug' && b.status === 'todo' && b.svc === t.svc;
+    if (tickets.some(busy) || regressions.some(busy)) return t;
     const reg = makeRegressionTicket(curState, t, seq.bug);
     seq.bug += 1;
-    tickets = [...tickets, reg];
+    regressions.push(reg);
     say('bad', 'Regression', `${reg.id} · ${t.svc} — “${t.title}” isn’t true anymore`);
     if (state.settings.pauseOnTicket) paused = true;
     return { ...t, regressed: true };
   });
+  if (regressions.length) { tickets = [...tickets, ...regressions]; stats.incidentsRaised += regressions.length; }
   // un-flag regressions once the regression incident is resolved (so a later break raises a fresh one)
   tickets = tickets.map(t => {
     if (!t.regressed) return t;
@@ -351,7 +359,7 @@ export function tick(state: GameState): GameState {
     nodes, images, services, tickets, pending, seq, firstBeat, events,
     meters: { sla, budget, xp },
     toasts, log, toastStamp,
-    flash: { bad: anyBad && !state.services.some(s => sevOf(s.status) === 'bad') ? nowTick : state.flash.bad, rebalance: rebalanceFlash },
+    flash: { bad: anyBad && (state.flash.bad === null || !state.services.some(s => sevOf(s.status) === 'bad')) ? nowTick : state.flash.bad, rebalance: rebalanceFlash },
     stats, outcome, nextProcTick, budgetDebtTicks, lastOutageTick,
     rng: rng.seed(),
   };

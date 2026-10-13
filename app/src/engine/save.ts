@@ -36,7 +36,7 @@ export function migrate(raw: unknown): GameState {
     ...fresh, ...s,
     clock: { ...fresh.clock, ...(s.clock ?? {}), paused: true },
     meters: { ...fresh.meters, ...(s.meters ?? {}) },
-    ui: { ...fresh.ui, ...(s.ui ?? {}) },
+    ui: { ...fresh.ui, ...(s.ui ?? {}), openTicket: null },
     seq: { ...fresh.seq, ...(s.seq ?? {}) },
     stats: { ...fresh.stats, ...(s.stats ?? {}) },
     settings: { ...fresh.settings, ...(s.settings ?? {}) },

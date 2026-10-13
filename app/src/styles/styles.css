@@ -152,7 +152,7 @@ body {
 .app {
   display: grid;
   grid-template-columns: 76px 1fr;
-  grid-template-rows: 62px 1fr;
+  grid-template-rows: 68px 1fr;
   grid-template-areas: "brand hud" "nav main";
   height: 100vh;
   min-width: 1180px;

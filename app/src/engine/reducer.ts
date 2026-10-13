@@ -25,7 +25,7 @@ export function seedState(seed: number = randomSeed()): GameState {
     events: [],
     toasts: [],
     form: { open: false, editingId: null, draft: null },
-    ui: { screen: 'tickets', infraTab: 'cluster', boardView: 'cards', addNode: false },
+    ui: { screen: 'tickets', infraTab: 'cluster', boardView: 'cards', addNode: false, openTicket: null },
     seq: { ticket: 105, uid: 0, bug: 1 },
     rng: seed >>> 0,
     firstBeat: null,
@@ -80,6 +80,7 @@ export function reducer(state: GameState, action: Action): GameState {
     case 'INFRA_TAB':  return { ...state, ui: { ...state.ui, infraTab: action.tab } };
     case 'BOARD_VIEW': return { ...state, ui: { ...state.ui, boardView: action.view } };
     case 'CLEAR_BEAT': return { ...state, firstBeat: null };
+    case 'OPEN_TICKET': return { ...state, ui: { ...state.ui, screen: action.id ? 'tickets' : state.ui.screen, openTicket: action.id } };
     case 'PAUSE':      return { ...state, clock: { ...state.clock, paused: action.paused } };
     case 'SPEED':      return state.outcome && !state.endless ? state : { ...state, clock: { ...state.clock, speed: action.speed, paused: false } };
     case 'SET_DRAMA':  return { ...state, settings: { ...state.settings, drama: Math.max(0, Math.min(1, action.drama)) } };

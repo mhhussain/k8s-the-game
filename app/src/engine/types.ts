@@ -32,6 +32,7 @@ export interface ClusterNode {
   tags: Hw[];
   hw?: Hw;              // special nodes: locked hardware type
   downFor: number;      // >0 while the node is offline (outage event); ticks remaining
+  outageFelt?: boolean; // during the current outage, some service it hosted hit 0 ready
   provisionedTick: number;
 }
 
@@ -195,7 +196,7 @@ export interface GameState {
   events: WorldEvent[];
   toasts: Toast[];
   form: FormState;
-  ui: { screen: Screen; infraTab: InfraTab; boardView: BoardView; addNode: boolean };
+  ui: { screen: Screen; infraTab: InfraTab; boardView: BoardView; addNode: boolean; openTicket: string | null };
   seq: { ticket: number; uid: number; bug: number };
   rng: number;                    // RNG seed, advanced every tick
   firstBeat: null | { id: string; title: string };
@@ -218,6 +219,7 @@ export type Action =
   | { type: 'INFRA_TAB'; tab: InfraTab }
   | { type: 'BOARD_VIEW'; view: BoardView }
   | { type: 'CLEAR_BEAT' }
+  | { type: 'OPEN_TICKET'; id: string | null }
   | { type: 'PAUSE'; paused: boolean }
   | { type: 'SPEED'; speed: 1 | 2 | 4 }
   | { type: 'TOGGLE_ADDNODE'; open?: boolean }

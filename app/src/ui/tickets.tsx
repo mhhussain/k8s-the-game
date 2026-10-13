@@ -4,7 +4,7 @@
    live acceptance-criteria checklist · validation + rejection ·
    soft deadlines (due chips, decayed rewards) · regression hints
    ============================================================ */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CONFIG, effectiveReward, findSvc, gradeTicket, money,
   type GradedCriterion, type Priority, type Ticket, type TicketType,
@@ -57,8 +57,13 @@ function RegressionPill() {
 
 /* ---------- board ---------- */
 export function TicketBoard() {
-  const { state } = useGame();
-  const [open, setOpen] = useState<string | null>(null);
+  const { state, dispatch } = useGame();
+  const [open, setOpenLocal] = useState<string | null>(null);
+  // an external request (first-ticket beat, toasts) can ask the board to open a ticket
+  useEffect(() => {
+    if (state.ui.openTicket) { setOpenLocal(state.ui.openTicket); dispatch({ type: 'OPEN_TICKET', id: null }); }
+  }, [state.ui.openTicket, dispatch]);
+  const setOpen = setOpenLocal;
   const cols: { key: Ticket['status']; title: string; sev: 'pending' | 'ok' }[] = [
     { key: 'todo', title: 'Open',     sev: 'pending' },
     { key: 'done', title: 'Resolved', sev: 'ok' },

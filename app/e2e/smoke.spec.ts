@@ -25,7 +25,7 @@ test('first ticket playthrough, save and reload', async ({ page }) => {
 
   // build the image from the Repos/Registry pipeline (use the non-drag fallback button)
   await page.getByRole('button', { name: 'Cluster' }).click();
-  await page.getByText('Repos', { exact: true }).first().click();
+  await page.locator('.tab', { hasText: 'Repos' }).click();
   const repoCard = page.locator('.repo', { hasText: 'web-storefront' });
   await expect(repoCard).toBeVisible();
   await repoCard.getByRole('button', { name: /Build/ }).click();
@@ -77,6 +77,6 @@ test('themes switch and the page has no console errors', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'voltage');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Upgrades' }).click();
-  await expect(page.getByText('Continuous Integration')).toBeVisible();
+  await expect(page.locator('.u-name', { hasText: 'Continuous Integration' })).toBeVisible();
   expect(errors, errors.join('\n')).toEqual([]);
 });

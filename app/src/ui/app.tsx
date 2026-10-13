@@ -95,7 +95,7 @@ export function App() {
 
 /* ---------- first-ticket-lands beat ---------- */
 function FirstBeat({ beat, dispatch }: { beat: { id: string; title: string }; dispatch: React.Dispatch<Action> }) {
-  const go = () => { dispatch({ type: 'NAV', screen: 'tickets' }); dispatch({ type: 'CLEAR_BEAT' }); };
+  const go = () => { dispatch({ type: 'OPEN_TICKET', id: beat.id }); dispatch({ type: 'CLEAR_BEAT' }); };
   return (
     <>
       <div className="overlay" onClick={() => dispatch({ type: 'CLEAR_BEAT' })} />

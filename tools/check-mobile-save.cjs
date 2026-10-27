@@ -1,0 +1,16 @@
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const ts = require('typescript');
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {compilerOptions: {module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022}}).outputText, filename);
+const {importJson, exportJson} = require('../src/engine/save.ts');
+const {reducer} = require('../src/engine/reducer.ts');
+const source = fs.readFileSync('mobile/test/fixtures/mobile-save.json','utf8');
+const mobile = JSON.parse(source).state;
+let state = importJson(source);
+assert.deepEqual(state.services, mobile.services);
+assert.deepEqual(state.meters, mobile.meters);
+assert.equal(state.tickets[0].paid, true);
+state = reducer(state, {type:'TICK'});
+assert.equal(state.clock.tick, mobile.clock.tick + 1);
+assert.equal(importJson(exportJson(state)).clock.tick, state.clock.tick);
+console.log('Mobile → web import, continued simulation, and re-export passed.');

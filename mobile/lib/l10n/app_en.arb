@@ -1,0 +1,18 @@
+{
+  "@@locale": "en",
+  "appTitle": "Kubernetes: The Game",
+  "tagline": "Tickets in. Uptime out.",
+  "tickets": "Tickets",
+  "cluster": "Cluster",
+  "build": "Build",
+  "upgrades": "Upgrades",
+  "more": "More",
+  "resume": "Resume",
+  "pause": "Pause",
+  "newGame": "New game",
+  "continueGame": "Continue",
+  "settings": "Settings",
+  "saves": "Saves & transfers",
+  "help": "Field guide",
+  "privacy": "Privacy & support"
+}

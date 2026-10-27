@@ -100,6 +100,8 @@ export function TitleScreen({ onPlay, onNewGame, onLoad, onHelp, onPress }: {
           <div className="ts-links">
             <button type="button" onClick={onHelp}><Icon name="help" size={14} /> How to play</button>
             <button type="button" onClick={onPress}><Icon name="spark" size={14} /> Press kit</button>
+            <a href="./privacy.html" target="_blank" rel="noreferrer">Mobile privacy</a>
+            <a href="./support.html" target="_blank" rel="noreferrer">Support</a>
           </div>
         </div>
 

@@ -79,3 +79,15 @@ The prototype's loop worked for about two minutes and then had nothing to push b
 | Tweaks panel was prototype-only | Replaced by a Settings modal: theme, board layout, drift drama, pause-on-ticket, autosave. Plus an Activity Log and a Help panel. |
 
 Everything else (visual design, copy, the four scripted tickets, affinity schedule-but-fail, config-checkable HA) is as specified in the handoff.
+
+## Mobile app
+
+The native Flutter edition lives in [`mobile/`](mobile/README.md), with the same
+campaign and simulation mechanics, touch-first phone/tablet layouts, and fully
+offline local saves. See [the agreed mobile plan](docs/mobile-plan.md),
+[release instructions](mobile/RELEASE.md), and [store listing](mobile/store/listing.md).
+
+The public [privacy policy](https://mhhussain.github.io/k8s-the-game/privacy.html)
+and [support page](https://mhhussain.github.io/k8s-the-game/support.html) are built
+from `public/` and publish alongside the web game after this change is merged to
+`main`. They are not live until that deployment completes.

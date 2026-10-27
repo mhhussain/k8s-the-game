@@ -1,0 +1,5501 @@
+[
+  {
+    "action": {
+      "type": "BUILD_IMAGE",
+      "repoId": "repo-1"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": true,
+          "progress": 0,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 0,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "BUILD_TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": true,
+          "progress": 20,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 0,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "BUILD_TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": true,
+          "progress": 40,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 0,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "BUILD_TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": true,
+          "progress": 60,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 0,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "BUILD_TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": true,
+          "progress": 80,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 0,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "BUILD_TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "FORM_NEW"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "tickets",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 1,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 0,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "SERVICE_SAVE"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 0,
+        "paused": true,
+        "speed": 1,
+        "mins": 540
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4200,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [
+        {
+          "id": "svc-2",
+          "name": "web-storefront",
+          "imageId": "img-1",
+          "type": "Pod",
+          "replicas": 2,
+          "liveness": false,
+          "readiness": false,
+          "affinity": null,
+          "spread": "auto",
+          "podNodes": [
+            "node-alpha",
+            "node-alpha"
+          ],
+          "status": "Pending",
+          "ready": [
+            0,
+            2
+          ],
+          "restarts": 0,
+          "errorRate": 0.002,
+          "health": 100,
+          "demand": 55.57082329876721,
+          "age": 0,
+          "settleIn": 3,
+          "incidentCooldown": 0,
+          "crashFor": 0,
+          "lowLoadTicks": 0,
+          "createdTick": 0
+        }
+      ],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "infra",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 2,
+        "bug": 1
+      },
+      "rng": 42,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 1,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        },
+        {
+          "id": 3,
+          "tick": 0,
+          "kind": "info",
+          "title": "Service scheduled",
+          "msg": "web-storefront → 1 node"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 1,
+        "paused": true,
+        "speed": 1,
+        "mins": 570
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4195,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [
+        {
+          "id": "svc-2",
+          "name": "web-storefront",
+          "imageId": "img-1",
+          "type": "Pod",
+          "replicas": 2,
+          "liveness": false,
+          "readiness": false,
+          "affinity": null,
+          "spread": "auto",
+          "podNodes": [
+            "node-alpha",
+            "node-alpha"
+          ],
+          "status": "Pending",
+          "ready": [
+            1,
+            2
+          ],
+          "restarts": 0,
+          "errorRate": 0.081,
+          "health": 100,
+          "demand": 55.57082329876721,
+          "age": 0,
+          "settleIn": 2,
+          "incidentCooldown": 0,
+          "crashFor": 0,
+          "lowLoadTicks": 0,
+          "createdTick": 0
+        }
+      ],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "infra",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 2,
+        "bug": 1
+      },
+      "rng": 1831565855,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 1,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        },
+        {
+          "id": 3,
+          "tick": 0,
+          "kind": "info",
+          "title": "Service scheduled",
+          "msg": "web-storefront → 1 node"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 2,
+        "paused": true,
+        "speed": 1,
+        "mins": 600
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4190,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [
+        {
+          "id": "svc-2",
+          "name": "web-storefront",
+          "imageId": "img-1",
+          "type": "Pod",
+          "replicas": 2,
+          "liveness": false,
+          "readiness": false,
+          "affinity": null,
+          "spread": "auto",
+          "podNodes": [
+            "node-alpha",
+            "node-alpha"
+          ],
+          "status": "Pending",
+          "ready": [
+            2,
+            2
+          ],
+          "restarts": 0,
+          "errorRate": 0.1205,
+          "health": 100,
+          "demand": 55.57082329876721,
+          "age": 0,
+          "settleIn": 1,
+          "incidentCooldown": 0,
+          "crashFor": 0,
+          "lowLoadTicks": 0,
+          "createdTick": 0
+        }
+      ],
+      "tickets": [],
+      "pending": [
+        {
+          "atTick": 3,
+          "ticket": {
+            "id": "TCK-101",
+            "type": "new",
+            "requester": "Priya · Finance",
+            "avatar": "#4C6EF5",
+            "prio": "med",
+            "svc": "web-storefront",
+            "repo": "repo-1",
+            "title": "Get web-storefront live",
+            "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+            "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+            "reward": 700,
+            "xp": 30,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "web-storefront",
+                "label": "web-storefront is running"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false,
+            "first": true
+          }
+        },
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "infra",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 2,
+        "bug": 1
+      },
+      "rng": 3663131668,
+      "firstBeat": null,
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 1,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        },
+        {
+          "id": 3,
+          "tick": 0,
+          "kind": "info",
+          "title": "Service scheduled",
+          "msg": "web-storefront → 1 node"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "TICK"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 3,
+        "paused": true,
+        "speed": 1,
+        "mins": 630
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4185,
+        "xp": 0
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [
+        {
+          "id": "svc-2",
+          "name": "web-storefront",
+          "imageId": "img-1",
+          "type": "Pod",
+          "replicas": 2,
+          "liveness": false,
+          "readiness": false,
+          "affinity": null,
+          "spread": "auto",
+          "podNodes": [
+            "node-alpha",
+            "node-alpha"
+          ],
+          "status": "Running",
+          "ready": [
+            2,
+            2
+          ],
+          "restarts": 0,
+          "errorRate": 0.01,
+          "health": 100,
+          "demand": 55.57082329876721,
+          "age": 0,
+          "settleIn": 0,
+          "incidentCooldown": 0,
+          "crashFor": 0,
+          "lowLoadTicks": 0,
+          "createdTick": 0
+        }
+      ],
+      "tickets": [
+        {
+          "id": "TCK-101",
+          "type": "new",
+          "requester": "Priya · Finance",
+          "avatar": "#4C6EF5",
+          "prio": "med",
+          "svc": "web-storefront",
+          "repo": "repo-1",
+          "title": "Get web-storefront live",
+          "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+          "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+          "reward": 700,
+          "xp": 30,
+          "criteria": [
+            {
+              "kind": "running",
+              "svc": "web-storefront",
+              "label": "web-storefront is running"
+            }
+          ],
+          "status": "todo",
+          "createdTick": 3,
+          "paid": false,
+          "first": true,
+          "dueTick": 195
+        }
+      ],
+      "pending": [
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "infra",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 2,
+        "bug": 1
+      },
+      "rng": 1199730185,
+      "firstBeat": {
+        "id": "TCK-101",
+        "title": "Get web-storefront live"
+      },
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 0,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 0,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 1,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        },
+        {
+          "id": 3,
+          "tick": 0,
+          "kind": "info",
+          "title": "Service scheduled",
+          "msg": "web-storefront → 1 node"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  },
+  {
+    "action": {
+      "type": "TICKET_RESOLVE",
+      "id": "TCK-101"
+    },
+    "state": {
+      "version": 1,
+      "clock": {
+        "tick": 3,
+        "paused": true,
+        "speed": 1,
+        "mins": 630
+      },
+      "meters": {
+        "sla": 100,
+        "budget": 4885,
+        "xp": 40
+      },
+      "nodes": [
+        {
+          "id": "node-alpha",
+          "name": "node-alpha",
+          "kind": "generic",
+          "tier": "Normal",
+          "slots": 4,
+          "tags": [],
+          "downFor": 0,
+          "provisionedTick": 0
+        }
+      ],
+      "repos": [
+        {
+          "id": "repo-1",
+          "name": "web-storefront",
+          "lang": "Node",
+          "desc": "Customer-facing shop. The money-maker."
+        },
+        {
+          "id": "repo-2",
+          "name": "checkout-api",
+          "lang": "Go",
+          "desc": "Payments + cart. Hates downtime."
+        },
+        {
+          "id": "repo-3",
+          "name": "image-resizer",
+          "lang": "Rust",
+          "desc": "Thumbnails on demand. Bursty."
+        },
+        {
+          "id": "repo-4",
+          "name": "recommend-engine",
+          "lang": "Python",
+          "desc": "\"People also bought…\" Spiky traffic."
+        },
+        {
+          "id": "repo-5",
+          "name": "audit-log",
+          "lang": "Java",
+          "desc": "Compliance write-only firehose."
+        }
+      ],
+      "images": [
+        {
+          "id": "img-1",
+          "repoId": "repo-1",
+          "version": 1,
+          "tag": "web-storefront:1.0.0",
+          "digest": "sha256:2ddc…84",
+          "builtTick": 0,
+          "building": false,
+          "progress": 100,
+          "fast": false
+        }
+      ],
+      "services": [
+        {
+          "id": "svc-2",
+          "name": "web-storefront",
+          "imageId": "img-1",
+          "type": "Pod",
+          "replicas": 2,
+          "liveness": false,
+          "readiness": false,
+          "affinity": null,
+          "spread": "auto",
+          "podNodes": [
+            "node-alpha",
+            "node-alpha"
+          ],
+          "status": "Running",
+          "ready": [
+            2,
+            2
+          ],
+          "restarts": 0,
+          "errorRate": 0.01,
+          "health": 100,
+          "demand": 55.57082329876721,
+          "age": 0,
+          "settleIn": 0,
+          "incidentCooldown": 0,
+          "crashFor": 0,
+          "lowLoadTicks": 0,
+          "createdTick": 0
+        }
+      ],
+      "tickets": [
+        {
+          "id": "TCK-101",
+          "type": "new",
+          "requester": "Priya · Finance",
+          "avatar": "#4C6EF5",
+          "prio": "med",
+          "svc": "web-storefront",
+          "repo": "repo-1",
+          "title": "Get web-storefront live",
+          "body": "Get the storefront running so the team has something to point at. Nothing fancy yet — just make it serve.",
+          "hint": "Build the image first (drag the repo onto the Registry), then deploy a service from it.",
+          "reward": 700,
+          "xp": 30,
+          "criteria": [
+            {
+              "kind": "running",
+              "svc": "web-storefront",
+              "label": "web-storefront is running"
+            }
+          ],
+          "status": "done",
+          "createdTick": 3,
+          "paid": true,
+          "first": true,
+          "dueTick": 195,
+          "paidAmount": 700,
+          "resolvedTick": 3,
+          "regressed": false
+        }
+      ],
+      "pending": [
+        {
+          "atTick": 36,
+          "ticket": {
+            "id": "TCK-102",
+            "type": "new",
+            "requester": "Dana · Growth",
+            "avatar": "#5BA641",
+            "prio": "high",
+            "svc": "recommend-engine",
+            "repo": "repo-4",
+            "title": "Make the recommendation engine highly available",
+            "body": "Marketing’s \"people also bought\" strip goes live for the weekend campaign. It cannot blink — it needs to survive a node going down.",
+            "hint": "High availability is config-checkable: a Deployment with ≥2 replicas spread over ≥2 nodes. You’ll need to provision a second node — and unlock Deployments.",
+            "reward": 1100,
+            "xp": 60,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "recommend-engine",
+                "label": "recommend-engine is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "recommend-engine",
+                "label": "High availability"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 72,
+          "ticket": {
+            "id": "TCK-103",
+            "type": "new",
+            "requester": "Marcus · Compliance",
+            "avatar": "#D2742B",
+            "prio": "med",
+            "svc": "audit-log",
+            "repo": "repo-5",
+            "title": "Stand up audit-log on DATA hardware",
+            "body": "Compliance needs audit-log running and keeping data \"where the auditors expect it\" — on a DATA node. And it must never be a single point of failure.",
+            "hint": "\"Where the auditors expect it\" = a DATA-tagged node. Click the dashed + on a node card to tag it DATA (or provision a special DATA node), and keep it highly available.",
+            "reward": 950,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "audit-log",
+                "label": "audit-log is running"
+              },
+              {
+                "kind": "ha",
+                "svc": "audit-log",
+                "label": "High availability"
+              },
+              {
+                "kind": "node_tag",
+                "svc": "audit-log",
+                "tag": "DATA",
+                "label": "Every replica on a DATA node"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        },
+        {
+          "atTick": 110,
+          "ticket": {
+            "id": "TCK-104",
+            "type": "new",
+            "requester": "Sam · Ops",
+            "avatar": "#C85B5B",
+            "prio": "low",
+            "svc": "image-resizer",
+            "repo": "repo-3",
+            "title": "Thumbnails service for sale days",
+            "body": "Stand up image-resizer so the catalog stops loading broken thumbnails. Sale days get rough — expect bursts.",
+            "hint": "\"Sale days get rough\" = give it headroom. Thin on replicas and it buckles the first busy afternoon.",
+            "reward": 800,
+            "xp": 50,
+            "criteria": [
+              {
+                "kind": "running",
+                "svc": "image-resizer",
+                "label": "image-resizer is running"
+              },
+              {
+                "kind": "replicas",
+                "svc": "image-resizer",
+                "n": 3,
+                "label": "Headroom for bursts — ≥3 replicas"
+              }
+            ],
+            "status": "todo",
+            "createdTick": 0,
+            "paid": false
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "id": "u-ci1",
+          "branch": "Build",
+          "name": "Continuous Integration",
+          "icon": "ci",
+          "desc": "Auto-builds a repo into the Registry every few hours. Stop dragging.",
+          "cost": 700,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "ci_autobuild"
+        },
+        {
+          "id": "u-ci2",
+          "branch": "Build",
+          "name": "Image Caching",
+          "icon": "layers",
+          "desc": "Builds finish ~3× faster.",
+          "cost": 1000,
+          "xp": 60,
+          "requires": [
+            "u-ci1"
+          ],
+          "owned": false,
+          "effect": "fast_build"
+        },
+        {
+          "id": "u-wl1",
+          "branch": "Workload",
+          "name": "Deployments",
+          "icon": "deploy",
+          "desc": "Unlocks Deployment workloads — a dead pod is recreated, and re-homed when its node goes down. Required for high availability.",
+          "cost": 600,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "deployments"
+        },
+        {
+          "id": "u-wl2",
+          "branch": "Workload",
+          "name": "Rolling Updates",
+          "icon": "rolling",
+          "desc": "Edit live with zero downtime, and auto-refresh Stale services to the latest build.",
+          "cost": 1100,
+          "xp": 80,
+          "requires": [
+            "u-wl1"
+          ],
+          "owned": false,
+          "effect": "rolling"
+        },
+        {
+          "id": "u-ob1",
+          "branch": "Observability",
+          "name": "Service Dashboard",
+          "icon": "eye",
+          "desc": "See live health for every service — status, restarts, error rate — and unlock health probes.",
+          "cost": 800,
+          "xp": 0,
+          "requires": [],
+          "owned": false,
+          "effect": "dashboard"
+        },
+        {
+          "id": "u-ob2",
+          "branch": "Observability",
+          "name": "Auto-Remediation",
+          "icon": "heart",
+          "desc": "Crashed pods are detected and restarted automatically — even bare Pods.",
+          "cost": 1200,
+          "xp": 120,
+          "requires": [
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "self_heal"
+        },
+        {
+          "id": "u-if1",
+          "branch": "Infra",
+          "name": "Large Nodes",
+          "icon": "server",
+          "desc": "Provision Large generic nodes (8 pod slots) for denser, flexible capacity.",
+          "cost": 900,
+          "xp": 40,
+          "requires": [],
+          "owned": false,
+          "effect": "large_nodes"
+        },
+        {
+          "id": "u-if2",
+          "branch": "Infra",
+          "name": "Specialized Hardware",
+          "icon": "cpu",
+          "desc": "Provision special nodes — x86 / ARM / GPU / DATA — each 16 slots and locked to one type. The way to get density.",
+          "cost": 1500,
+          "xp": 110,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "special_nodes"
+        },
+        {
+          "id": "u-if3",
+          "branch": "Infra",
+          "name": "Node Affinity",
+          "icon": "pin",
+          "desc": "Declare a service’s required hardware. A replica that lands on a node without the tag still schedules — but fails to go live.",
+          "cost": 1400,
+          "xp": 120,
+          "requires": [
+            "u-if1"
+          ],
+          "owned": false,
+          "effect": "affinity"
+        },
+        {
+          "id": "u-if4",
+          "branch": "Infra",
+          "name": "Automatic Rebalance",
+          "icon": "balance",
+          "desc": "The scheduler quietly moves pods between nodes to even out utilization — and re-homes pods off overfull or wrong-tag nodes.",
+          "cost": 2100,
+          "xp": 140,
+          "requires": [
+            "u-if2"
+          ],
+          "owned": false,
+          "effect": "rebalance"
+        },
+        {
+          "id": "u-sc1",
+          "branch": "Scaling",
+          "name": "Horizontal Autoscaler",
+          "icon": "scale",
+          "desc": "Adds replicas when a service is overloaded (if the cluster has room and the budget is positive) — and trims them when traffic fades.",
+          "cost": 2000,
+          "xp": 140,
+          "requires": [
+            "u-wl1",
+            "u-ob1"
+          ],
+          "owned": false,
+          "effect": "autoscale"
+        },
+        {
+          "id": "u-sc2",
+          "branch": "Scaling",
+          "name": "Secrets & Data Tier",
+          "icon": "lock",
+          "desc": "Managed databases, secrets and backups. The last piece: with this, prod-east-1 runs itself. Completes the campaign.",
+          "cost": 3200,
+          "xp": 260,
+          "requires": [
+            "u-sc1",
+            "u-ob2",
+            "u-if4"
+          ],
+          "owned": false,
+          "effect": "data_tier",
+          "final": true
+        }
+      ],
+      "events": [],
+      "toasts": [],
+      "form": {
+        "open": false,
+        "editingId": null,
+        "draft": null
+      },
+      "ui": {
+        "screen": "infra",
+        "infraTab": "cluster",
+        "boardView": "cards",
+        "addNode": false,
+        "openTicket": null
+      },
+      "seq": {
+        "ticket": 105,
+        "uid": 2,
+        "bug": 1
+      },
+      "rng": 1199730185,
+      "firstBeat": {
+        "id": "TCK-101",
+        "title": "Get web-storefront live"
+      },
+      "flash": {
+        "bad": null,
+        "rebalance": null
+      },
+      "stats": {
+        "ticketsResolved": 1,
+        "incidentsResolved": 0,
+        "incidentsRaised": 0,
+        "moneyEarned": 700,
+        "moneySpent": 0,
+        "nodesProvisioned": 1,
+        "imagesBuilt": 1,
+        "peakServices": 1,
+        "worstSla": 100,
+        "outagesSurvived": 0,
+        "outagesFelt": 0,
+        "bailouts": 0,
+        "revenueEarned": 0
+      },
+      "outcome": null,
+      "endless": false,
+      "nextProcTick": 150,
+      "budgetDebtTicks": 0,
+      "lastOutageTick": 0,
+      "settings": {
+        "drama": 0.6,
+        "pauseOnTicket": true
+      },
+      "log": [
+        {
+          "id": 1,
+          "tick": 0,
+          "kind": "info",
+          "title": "Build started",
+          "msg": "web-storefront → v1 (cold build)"
+        },
+        {
+          "id": 2,
+          "tick": 0,
+          "kind": "ok",
+          "title": "Image built",
+          "msg": "web-storefront:1.0.0"
+        },
+        {
+          "id": 3,
+          "tick": 0,
+          "kind": "info",
+          "title": "Service scheduled",
+          "msg": "web-storefront → 1 node"
+        },
+        {
+          "id": 4,
+          "tick": 3,
+          "kind": "ok",
+          "title": "Ticket resolved",
+          "msg": "TCK-101 closed · +$700 · +40 XP"
+        }
+      ],
+      "lastBailoutDay": 0,
+      "toastStamp": {}
+    }
+  }
+]

@@ -1,0 +1,72 @@
+name: Mobile validation
+on:
+  pull_request:
+    paths: ['mobile/**', 'src/engine/**', 'tools/mobile-*', '.github/workflows/mobile.yml']
+  push:
+    branches: [main, feat/flutter-mobile]
+    paths: ['mobile/**', 'src/engine/**', 'tools/mobile-*', '.github/workflows/mobile.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  flutter:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        if: runner.os == 'Linux'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - name: Android unsigned release
+        if: runner.os == 'Linux'
+        run: flutter build appbundle --release
+      - name: iOS unsigned release
+        if: runner.os == 'macOS'
+        run: |
+          xcodebuild -version
+          flutter build ios --release --no-codesign
+          ditto -c -k --keepParent build/ios/iphoneos/Runner.app build/ios/unsigned-runner.zip
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: android-unsigned-release
+          path: mobile/build/app/outputs/bundle/release/*.aab
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: ios-unsigned-release
+          path: mobile/build/ios/unsigned-runner.zip
+  web-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: node tools/check-mobile-save.cjs
+      - run: npm run build
+      - name: Privacy and support pages are published
+        run: test -f dist/privacy.html && test -f dist/support.html

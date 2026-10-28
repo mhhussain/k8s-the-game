@@ -4,6 +4,33 @@ import 'package:k8sthegame/controller.dart';
 import 'package:k8sthegame/ui/app.dart';
 
 void main() {
+  testWidgets('phone branches fit and a skill opens a bottom sheet', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 812);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final c = GameController(MemoryStorage(), effects: false);
+    await c.initialize();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(GameApp(controller: c, showTitle: false));
+    await tester.tap(find.text('Upgrades').last);
+    await tester.pumpAndSettle();
+    for (final chip in tester.widgetList<ChoiceChip>(find.byType(ChoiceChip))) {
+      final rect = tester.getRect(find.byWidget(chip));
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(375));
+    }
+    expect(find.byType(ChoiceChip), findsNWidgets(5));
+    expect(find.byType(BottomSheet), findsNothing);
+    await tester.tap(find.text(c.game.upgrades.first['name']));
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(find.text('Unlock'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in [
     const Size(320, 568),
     const Size(375, 812),
@@ -28,6 +55,49 @@ void main() {
       }
     });
   }
+  testWidgets('tablet status controls share a row with stats', (tester) async {
+    tester.view.physicalSize = const Size(1024, 1366);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final c = GameController(MemoryStorage(), effects: false);
+    await c.initialize();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(GameApp(controller: c, showTitle: false));
+    expect(find.byKey(const ValueKey('tablet-status-bar')), findsOneWidget);
+    final budget = tester.getCenter(find.text('BUDGET'));
+    final resume = tester.getCenter(find.text('Resume'));
+    expect((budget.dy - resume.dy).abs(), lessThan(30));
+  });
+
+  testWidgets('skill node opens details and purchases the existing upgrade', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1024, 1366);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final c = GameController(MemoryStorage(), effects: false);
+    await c.initialize();
+    addTearDown(c.dispose);
+    c.game.state['meters']['budget'] = 100000;
+    c.game.state['meters']['xp'] = 100000;
+    final upgrade = c.game.upgrades.firstWhere(
+      (u) => (u['requires'] as List).isEmpty,
+    );
+    final budget = c.game.budget;
+    await tester.pumpWidget(GameApp(controller: c, showTitle: false));
+    await tester.tap(find.text('Upgrades').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(upgrade['name']).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Unlock'));
+    await tester.pumpAndSettle();
+    expect(upgrade['owned'], true);
+    expect(c.game.budget, budget - upgrade['cost']);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('backgrounding pauses, saves, and never resumes on modal close', (
     tester,
   ) async {
@@ -85,12 +155,21 @@ void main() {
     expect(c.game.state['form']['draft']['replicas'], 2);
   });
   testWidgets('large text stays usable on a narrow phone', (tester) async {
-    tester.view.physicalSize=const Size(375,812);tester.view.devicePixelRatio=1;
-    tester.platformDispatcher.textScaleFactorTestValue=2;
-    addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    final c=GameController(MemoryStorage(),effects:false);await c.initialize();addTearDown(c.dispose);
-    await tester.pumpWidget(GameApp(controller:c,showTitle:false));await tester.pumpAndSettle();
-    for(final label in ['Cluster','Build','Upgrades','More']){await tester.tap(find.text(label).last);await tester.pumpAndSettle();expect(tester.takeException(),isNull,reason:label);}
+    tester.view.physicalSize = const Size(375, 812);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final c = GameController(MemoryStorage(), effects: false);
+    await c.initialize();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(GameApp(controller: c, showTitle: false));
+    await tester.pumpAndSettle();
+    for (final label in ['Cluster', 'Build', 'Upgrades', 'More']) {
+      await tester.tap(find.text(label).last);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: label);
+    }
   });
-
 }

@@ -4,6 +4,33 @@ import 'package:k8sthegame/controller.dart';
 import 'package:k8sthegame/ui/app.dart';
 
 void main() {
+  testWidgets('phone branches fit and a skill opens a bottom sheet', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 812);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final c = GameController(MemoryStorage(), effects: false);
+    await c.initialize();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(GameApp(controller: c, showTitle: false));
+    await tester.tap(find.text('Upgrades').last);
+    await tester.pumpAndSettle();
+    for (final chip in tester.widgetList<ChoiceChip>(find.byType(ChoiceChip))) {
+      final rect = tester.getRect(find.byWidget(chip));
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(375));
+    }
+    expect(find.byType(ChoiceChip), findsNWidgets(5));
+    expect(find.byType(BottomSheet), findsNothing);
+    await tester.tap(find.text(c.game.upgrades.first['name']));
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(find.text('Unlock'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in [
     const Size(320, 568),
     const Size(375, 812),

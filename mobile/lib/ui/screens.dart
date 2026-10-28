@@ -746,38 +746,111 @@ extension _PlayScreens on _GameShellState {
         ),
       ),
   ], key: const PageStorageKey('build'));
-  Widget upgradesScreen() => scroll([
-    heading(
-      'SKILL TREE',
-      'Build your automation',
-      'Follow the paths, then spend budget and XP to unlock each skill.',
-    ),
-    panel(
-      Row(
-        children: [
-          const Icon(Icons.auto_awesome, color: green),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              '${g.upgrades.where((u) => u['owned'] == true).length} / ${g.upgrades.length} online · ${g.xp.round()} XP · ${money(g.budget)}',
-              style: Theme.of(context).textTheme.titleMedium,
+  Widget upgradesScreen() => LayoutBuilder(
+    builder: (context, box) {
+      final tablet = box.maxWidth >= 700;
+      final selected =
+          find(g.upgrades, (u) => u['id'] == selectedSkill) ?? g.upgrades.first;
+      final tree = SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                '${g.upgrades.where((u) => u['owned'] == true).length}/${g.upgrades.length} SKILLS ONLINE · Tap a skill',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-    ),
-    const Text(
-      'Tap a skill for details. Swipe sideways to explore the branches.',
-    ),
-    const SizedBox(height: 16),
-    skillTree(),
-    const SizedBox(height: 12),
-    const Text(
-      'Secrets & Data Tier completes the campaign. Continue afterward in endless mode.',
-    ),
-  ], key: const PageStorageKey('upgrades'));
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  for (final branch in [
+                    'Build',
+                    'Workload',
+                    'Observability',
+                    'Infra',
+                    'Scaling',
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(branch),
+                        selected: selected['branch'] == branch,
+                        onSelected: (_) => update(
+                          () => selectedSkill = g.upgrades.firstWhere(
+                            (u) => u['branch'] == branch,
+                          )['id'],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: skillTree(tablet),
+            ),
+          ],
+        ),
+      );
+      final details = SingleChildScrollView(
+        key: const ValueKey('selected-skill-details'),
+        padding: const EdgeInsets.all(12),
+        child: upgradeDetails(selected),
+      );
+      return tablet
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: tree),
+                const VerticalDivider(width: 1),
+                SizedBox(width: 310, child: details),
+              ],
+            )
+          : tree;
+    },
+  );
 
-  Widget upgradeDetails(Record u) => panel(
+  Future<void> selectSkill(String id, bool tablet) async {
+    update(() => selectedSkill = id);
+    if (tablet) return;
+    await c.holding(
+      () => showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        useSafeArea: true,
+        builder: (sheetContext) => StatefulBuilder(
+          builder: (context, refresh) => ListenableBuilder(
+            listenable: c,
+            builder: (context, _) {
+              final skill = find(g.upgrades, (u) => u['id'] == selectedSkill)!;
+              return DraggableScrollableSheet(
+                initialChildSize: .65,
+                minChildSize: .3,
+                maxChildSize: .9,
+                expand: false,
+                builder: (context, controller) => SingleChildScrollView(
+                  controller: controller,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: upgradeDetails(skill, onSelect: (_) => refresh(() {})),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget upgradeDetails(Record u, {void Function(String)? onSelect}) => panel(
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -807,14 +880,14 @@ extension _PlayScreens on _GameShellState {
             'Build automatically.',
           ),
         ),
-        if ((u['requires'] as List).isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              'Requires: ${(u['requires'] as List).map((id) => find(g.upgrades, (x) => x['id'] == id)?['name'] ?? id).join(', ')}',
-              style: const TextStyle(fontSize: 12),
-            ),
+        if ((u['requires'] as List).isNotEmpty) ...[
+          const SizedBox(height: 10),
+          const Text(
+            'REQUIRES ALL',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
           ),
+          prerequisiteLinks(u, onSelect: onSelect),
+        ],
         const SizedBox(height: 14),
         Wrap(
           spacing: 12,
@@ -837,93 +910,115 @@ extension _PlayScreens on _GameShellState {
     ),
   );
 
-  Widget skillTree() {
-    const branches = ['Build', 'Workload', 'Observability', 'Infra', 'Scaling'];
-    final depths = <String, int>{};
-    int depth(Record u) => depths[u['id']] ??= (u['requires'] as List).isEmpty
-        ? 0
-        : 1 +
-              (u['requires'] as List)
-                  .map((id) => depth(find(g.upgrades, (x) => x['id'] == id)!))
-                  .reduce((a, b) => a > b ? a : b);
-    final positions = <String, Offset>{};
-    for (final u in g.upgrades) {
-      positions[u['id']] = Offset(
-        branches.indexOf(u['branch']) * 224.0 + 8,
-        depth(u) * 200.0 + 52,
-      );
-    }
-    final height =
-        (depths.values.reduce((a, b) => a > b ? a : b) + 1) * 200.0 + 52;
-    return SingleChildScrollView(
-      key: const PageStorageKey('skill-tree-horizontal'),
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1120,
-        height: height,
-        child: Stack(
+  Widget prerequisiteLinks(Record u, {void Function(String)? onSelect}) => Wrap(
+    spacing: 6,
+    runSpacing: 4,
+    children: [
+      for (final id in u['requires'] as List)
+        Builder(
+          builder: (_) {
+            final required = find(g.upgrades, (x) => x['id'] == id)!;
+            return ActionChip(
+              avatar: Icon(
+                required['owned'] == true
+                    ? Icons.check_circle
+                    : Icons.call_made,
+                size: 16,
+                color: required['owned'] == true ? green : null,
+              ),
+              label: Text(
+                '${required['branch']} · ${required['name']}',
+                style: const TextStyle(fontSize: 12),
+              ),
+              onPressed: () {
+                update(() => selectedSkill = id);
+                onSelect?.call(id);
+              },
+            );
+          },
+        ),
+    ],
+  );
+
+  Widget skillTree(bool tablet) {
+    final selected =
+        find(g.upgrades, (u) => u['id'] == selectedSkill) ?? g.upgrades.first;
+    final skills = g.upgrades
+        .where((u) => u['branch'] == selected['branch'])
+        .toList();
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _SkillPaths(
-                  positions,
-                  g.upgrades,
-                  Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-            for (var i = 0; i < branches.length; i++)
-              Positioned(
-                left: i * 224.0 + 8,
-                top: 8,
-                width: 208,
-                child: Text(
-                  branches[i].toUpperCase(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.4,
+            for (var i = 0; i < skills.length; i++) ...[
+              if (i > 0)
+                if ((skills[i]['requires'] as List).contains(
+                  skills[i - 1]['id'],
+                ))
+                  SizedBox(
+                    height: 36,
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              width: 2,
+                              color: skills[i - 1]['owned'] == true
+                                  ? green
+                                  : const Color(0xffc8cfd6),
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_downward,
+                            size: 18,
+                            color: skills[i - 1]['owned'] == true
+                                ? green
+                                : Colors.blueGrey,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'Independent path',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11, color: Colors.blueGrey),
+                    ),
                   ),
-                ),
-              ),
-            for (final u in g.upgrades)
-              Positioned(
-                left: positions[u['id']]!.dx,
-                top: positions[u['id']]!.dy,
-                width: 208,
-                height: 156,
-                child: skillNode(u),
-              ),
+              skillNode(skills[i], tablet),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget skillNode(Record u) {
+  Widget skillNode(Record u, bool tablet) {
     final owned = u['owned'] == true;
     final ready = g.affordable(u);
-    final color = owned
-        ? green
-        : ready
-        ? Theme.of(context).colorScheme.primary
-        : Colors.blueGrey;
+    final selected = u['id'] == (selectedSkill ?? g.upgrades.first['id']);
+    final color = owned ? green : Theme.of(context).colorScheme.primary;
     return Semantics(
       button: true,
-      label:
-          '${u['name']}, ${owned
-              ? 'online'
-              : ready
-              ? 'available'
-              : 'locked'}',
+      selected: selected,
       child: Material(
-        color: owned ? const Color(0xffedf8ef) : Colors.white,
+        color: selected ? color.withValues(alpha: .10) : Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: color, width: ready || owned ? 2 : 1),
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: selected ? color : const Color(0xffd5d9df),
+            width: selected ? 2 : 1,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => utility(u['name'], (_) => scroll([upgradeDetails(u)])),
+          onTap: () => selectSkill(u['id'], tablet),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -938,42 +1033,30 @@ extension _PlayScreens on _GameShellState {
                           ? Icons.bolt
                           : Icons.lock_outline,
                       color: color,
-                      size: 20,
+                      size: 22,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      owned
-                          ? 'ONLINE'
-                          : ready
-                          ? 'AVAILABLE'
-                          : 'LOCKED',
-                      style: TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        u['name'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
+                    if (selected)
+                      Icon(Icons.radio_button_checked, size: 18, color: color),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    u['name'],
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 6),
                 Text(
                   owned
-                      ? 'Skill acquired'
-                      : '${money(u['cost'])} · ${u['xp']} XP',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12),
+                      ? 'Online'
+                      : ready
+                      ? 'Ready to unlock'
+                      : 'Locked',
+                  style: TextStyle(color: color, fontSize: 12),
                 ),
               ],
             ),
@@ -1211,46 +1294,4 @@ extension _PlayScreens on _GameShellState {
     });
     act('FORM_CLOSE');
   }
-}
-
-class _SkillPaths extends CustomPainter {
-  final Map<String, Offset> positions;
-  final List<Record> upgrades;
-  final Color accent;
-  _SkillPaths(this.positions, this.upgrades, this.accent);
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final u in upgrades) {
-      for (final id in u['requires'] as List) {
-        final start = positions[id]! + const Offset(104, 156);
-        final end = positions[u['id']]! + const Offset(104, 0);
-        final online = find(upgrades, (x) => x['id'] == id)?['owned'] == true;
-        final path = Path()
-          ..moveTo(start.dx, start.dy)
-          ..cubicTo(
-            start.dx,
-            start.dy + 22,
-            end.dx,
-            end.dy - 22,
-            end.dx,
-            end.dy,
-          );
-        canvas.drawPath(
-          path,
-          Paint()
-            ..color = online ? accent : const Color(0xffc8cfd6)
-            ..strokeWidth = online ? 3 : 2
-            ..style = PaintingStyle.stroke,
-        );
-        canvas.drawCircle(
-          end,
-          4,
-          Paint()..color = online ? accent : const Color(0xffc8cfd6),
-        );
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _SkillPaths oldDelegate) => true;
 }

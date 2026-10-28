@@ -171,6 +171,7 @@ class _GameShellState extends State<GameShell> {
   late bool title = widget.showTitle;
   int page = 0;
   String? selectedTicket;
+  String? selectedSkill;
   String ticketFilter = 'todo';
   bool showNodes = false;
   dynamic _lastNotice;

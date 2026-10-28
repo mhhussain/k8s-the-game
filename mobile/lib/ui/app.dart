@@ -482,71 +482,87 @@ class _GameShellState extends State<GameShell> {
   );
   Widget hud() {
     final mins = g.state['clock']['mins'] as int;
+    final stats = Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 18,
+      runSpacing: 8,
+      children: [
+        metric(
+          'BUDGET',
+          money(g.budget),
+          color: g.budget < 0 ? Colors.red.shade700 : null,
+        ),
+        metric(
+          'SLA',
+          '${(g.state['meters']['sla'] as num).toStringAsFixed(1)}%',
+        ),
+        metric('XP', '${g.xp.round()}'),
+        metric(
+          'SHIFT',
+          'Day ${g.day} · ${(mins ~/ 60).toString().padLeft(2, '0')}:${(mins % 60).toString().padLeft(2, '0')}',
+        ),
+      ],
+    );
+    final controls = Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      children: [
+        FilledButton.tonalIcon(
+          onPressed: g.ended
+              ? null
+              : () => g.paused
+                    ? act('SPEED', {'speed': g.state['clock']['speed']})
+                    : act('PAUSE', {'paused': true}),
+          icon: Icon(g.paused ? Icons.play_arrow : Icons.pause),
+          label: Text(g.paused ? 'Resume' : 'Pause'),
+        ),
+        PopupMenuButton<int>(
+          tooltip: 'Simulation speed',
+          enabled: !g.ended,
+          onSelected: (speed) => act('SPEED', {'speed': speed}),
+          itemBuilder: (_) => [
+            for (final speed in [1, 2, 4])
+              PopupMenuItem(value: speed, child: Text('$speed× speed')),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Text(
+              "${g.state['clock']['speed']}×",
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+        if (g.state['endless'] == true) const Chip(label: Text('Endless')),
+      ],
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xffe7e3db))),
       ),
-      child: Column(
-        children: [
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 18,
-            runSpacing: 8,
-            children: [
-              metric(
-                'BUDGET',
-                money(g.budget),
-                color: g.budget < 0 ? Colors.red.shade700 : null,
-              ),
-              metric(
-                'SLA',
-                '${(g.state['meters']['sla'] as num).toStringAsFixed(1)}%',
-              ),
-              metric('XP', '${g.xp.round()}'),
-              metric(
-                'SHIFT',
-                'Day ${g.day} · ${(mins ~/ 60).toString().padLeft(2, '0')}:${(mins % 60).toString().padLeft(2, '0')}',
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8,
-            children: [
-              FilledButton.tonalIcon(
-                onPressed: g.ended
-                    ? null
-                    : () => g.paused
-                          ? act('SPEED', {'speed': g.state['clock']['speed']})
-                          : act('PAUSE', {'paused': true}),
-                icon: Icon(g.paused ? Icons.play_arrow : Icons.pause),
-                label: Text(g.paused ? 'Resume' : 'Pause'),
-              ),
-              PopupMenuButton<int>(
-                tooltip: 'Simulation speed',
-                enabled: !g.ended,
-                onSelected: (speed) => act('SPEED', {'speed': speed}),
-                itemBuilder: (_) => [
-                  for (final speed in [1, 2, 4])
-                    PopupMenuItem(value: speed, child: Text('$speed× speed')),
-                ],
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Text(
-                    "${g.state['clock']['speed']}×",
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-              if (g.state['endless'] == true)
-                const Chip(label: Text('Endless')),
-            ],
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final tablet =
+              constraints.maxWidth >= 740 &&
+              MediaQuery.textScalerOf(context).scale(14) <= 18;
+          return tablet
+              ? Row(
+                  key: const ValueKey('tablet-status-bar'),
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: stats,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    controls,
+                  ],
+                )
+              : Column(children: [stats, const SizedBox(height: 8), controls]);
+        },
       ),
     );
   }

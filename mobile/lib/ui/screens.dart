@@ -748,111 +748,241 @@ extension _PlayScreens on _GameShellState {
   ], key: const PageStorageKey('build'));
   Widget upgradesScreen() => scroll([
     heading(
-      'Work smarter',
-      'Automate the afternoon',
-      'Buy back your time, one upgrade at a time.',
+      'SKILL TREE',
+      'Build your automation',
+      'Follow the paths, then spend budget and XP to unlock each skill.',
     ),
     panel(
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      Row(
         children: [
-          Text(
-            '${g.upgrades.where((u) => u['owned'] == true).length} / 12 upgrades online',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 10),
-          LinearProgressIndicator(
-            value: g.upgrades.where((u) => u['owned'] == true).length / 12,
-            minHeight: 6,
-            borderRadius: BorderRadius.circular(3),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Secrets & Data Tier completes the campaign. Keep playing afterward in endless mode.',
+          const Icon(Icons.auto_awesome, color: green),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '${g.upgrades.where((u) => u['owned'] == true).length} / ${g.upgrades.length} online · ${g.xp.round()} XP · ${money(g.budget)}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
         ],
       ),
     ),
-    for (final branch in [
-      'Build',
-      'Workload',
-      'Observability',
-      'Infra',
-      'Scaling',
-    ]) ...[
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          branch.toUpperCase(),
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.2,
-            fontSize: 12,
+    const Text(
+      'Tap a skill for details. Swipe sideways to explore the branches.',
+    ),
+    const SizedBox(height: 16),
+    skillTree(),
+    const SizedBox(height: 12),
+    const Text(
+      'Secrets & Data Tier completes the campaign. Continue afterward in endless mode.',
+    ),
+  ], key: const PageStorageKey('upgrades'));
+
+  Widget upgradeDetails(Record u) => panel(
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              u['owned'] == true
+                  ? Icons.check_circle
+                  : Icons.account_tree_outlined,
+              color: u['owned'] == true
+                  ? green
+                  : Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                u['name'],
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          (u['desc'] as String).replaceAll(
+            'Stop dragging.',
+            'Build automatically.',
+          ),
+        ),
+        if ((u['requires'] as List).isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              'Requires: ${(u['requires'] as List).map((id) => find(g.upgrades, (x) => x['id'] == id)?['name'] ?? id).join(', ')}',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              '${money(u['cost'])} · ${u['xp']} XP',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            FilledButton.tonal(
+              onPressed: g.affordable(u)
+                  ? () => act('BUY_UPGRADE', {'id': u['id']})
+                  : null,
+              child: Text(u['owned'] == true ? 'Online' : 'Unlock'),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  Widget skillTree() {
+    const branches = ['Build', 'Workload', 'Observability', 'Infra', 'Scaling'];
+    final depths = <String, int>{};
+    int depth(Record u) => depths[u['id']] ??= (u['requires'] as List).isEmpty
+        ? 0
+        : 1 +
+              (u['requires'] as List)
+                  .map((id) => depth(find(g.upgrades, (x) => x['id'] == id)!))
+                  .reduce((a, b) => a > b ? a : b);
+    final positions = <String, Offset>{};
+    for (final u in g.upgrades) {
+      positions[u['id']] = Offset(
+        branches.indexOf(u['branch']) * 224.0 + 8,
+        depth(u) * 200.0 + 52,
+      );
+    }
+    final height =
+        (depths.values.reduce((a, b) => a > b ? a : b) + 1) * 200.0 + 52;
+    return SingleChildScrollView(
+      key: const PageStorageKey('skill-tree-horizontal'),
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1120,
+        height: height,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _SkillPaths(
+                  positions,
+                  g.upgrades,
+                  Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+            for (var i = 0; i < branches.length; i++)
+              Positioned(
+                left: i * 224.0 + 8,
+                top: 8,
+                width: 208,
+                child: Text(
+                  branches[i].toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ),
+            for (final u in g.upgrades)
+              Positioned(
+                left: positions[u['id']]!.dx,
+                top: positions[u['id']]!.dy,
+                width: 208,
+                height: 156,
+                child: skillNode(u),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget skillNode(Record u) {
+    final owned = u['owned'] == true;
+    final ready = g.affordable(u);
+    final color = owned
+        ? green
+        : ready
+        ? Theme.of(context).colorScheme.primary
+        : Colors.blueGrey;
+    return Semantics(
+      button: true,
+      label:
+          '${u['name']}, ${owned
+              ? 'online'
+              : ready
+              ? 'available'
+              : 'locked'}',
+      child: Material(
+        color: owned ? const Color(0xffedf8ef) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: color, width: ready || owned ? 2 : 1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => utility(u['name'], (_) => scroll([upgradeDetails(u)])),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      owned
+                          ? Icons.check_circle
+                          : ready
+                          ? Icons.bolt
+                          : Icons.lock_outline,
+                      color: color,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      owned
+                          ? 'ONLINE'
+                          : ready
+                          ? 'AVAILABLE'
+                          : 'LOCKED',
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Text(
+                    u['name'],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Text(
+                  owned
+                      ? 'Skill acquired'
+                      : '${money(u['cost'])} · ${u['xp']} XP',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      for (final u in g.upgrades.where((u) => u['branch'] == branch))
-        panel(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    u['owned'] == true
-                        ? Icons.check_circle
-                        : Icons.account_tree_outlined,
-                    color: u['owned'] == true
-                        ? green
-                        : Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      u['name'],
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                (u['desc'] as String).replaceAll(
-                  'Stop dragging.',
-                  'Build automatically.',
-                ),
-              ),
-              if ((u['requires'] as List).isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Requires: ${(u['requires'] as List).map((id) => find(g.upgrades, (x) => x['id'] == id)?['name'] ?? id).join(', ')}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    '${money(u['cost'])} · ${u['xp']} XP',
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  FilledButton.tonal(
-                    onPressed: g.affordable(u)
-                        ? () => act('BUY_UPGRADE', {'id': u['id']})
-                        : null,
-                    child: Text(u['owned'] == true ? 'Online' : 'Unlock'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-    ],
-  ], key: const PageStorageKey('upgrades'));
+    );
+  }
+
   Future<void> editService({Record? s, String? imageId}) async {
     act(
       s == null ? 'FORM_NEW' : 'FORM_EDIT',
@@ -1081,4 +1211,46 @@ extension _PlayScreens on _GameShellState {
     });
     act('FORM_CLOSE');
   }
+}
+
+class _SkillPaths extends CustomPainter {
+  final Map<String, Offset> positions;
+  final List<Record> upgrades;
+  final Color accent;
+  _SkillPaths(this.positions, this.upgrades, this.accent);
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final u in upgrades) {
+      for (final id in u['requires'] as List) {
+        final start = positions[id]! + const Offset(104, 156);
+        final end = positions[u['id']]! + const Offset(104, 0);
+        final online = find(upgrades, (x) => x['id'] == id)?['owned'] == true;
+        final path = Path()
+          ..moveTo(start.dx, start.dy)
+          ..cubicTo(
+            start.dx,
+            start.dy + 22,
+            end.dx,
+            end.dy - 22,
+            end.dx,
+            end.dy,
+          );
+        canvas.drawPath(
+          path,
+          Paint()
+            ..color = online ? accent : const Color(0xffc8cfd6)
+            ..strokeWidth = online ? 3 : 2
+            ..style = PaintingStyle.stroke,
+        );
+        canvas.drawCircle(
+          end,
+          4,
+          Paint()..color = online ? accent : const Color(0xffc8cfd6),
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SkillPaths oldDelegate) => true;
 }
